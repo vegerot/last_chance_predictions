@@ -73,15 +73,10 @@ function calculateOptimalBet(
       userOdds.maxBet + chatOdds.pointsPerSide[1],
     ],
   })[1];
+  if (evIfSideA < 0 && evIfSideB < 0) return null;
   if (evIfSideA > evIfSideB) {
-    if (evIfSideA < 0) {
-      return null;
-    }
     return { side: 0, points: userOdds.maxBet };
   } else {
-    if (evIfSideB < 0) {
-      return null;
-    }
     return { side: 1, points: userOdds.maxBet };
   }
 }
