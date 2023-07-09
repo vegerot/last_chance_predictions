@@ -33,7 +33,15 @@ Deno.test("hi", () => {
   );
 });
 
-// TODO: test when you would vote for who you think is less likely to win
+Deno.test("voting for less likely winner is best", () => {
+  assertEquals(
+    calculateOptimalBet(
+      /*userOdds*/ { odds: [75, 25], maxBet: 10_000 },
+      /*chatOdds*/ { pointsPerSide: [900, 100] },
+    )!.side,
+    1,
+  );
+});
 
 Deno.test("The only winning move is not to play.", () => {
   assertEquals(
