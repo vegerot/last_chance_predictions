@@ -99,7 +99,6 @@ function calculateOptimalBet(
   userOdds: { odds: [number, number]; maxBet: number },
   chatOdds: { pointsPerSide: [number, number] },
 ): { side: number; points: number } | null {
-  let bet = userOdds.maxBet;
   let bestSide;
   let bestBet = -Infinity;
   let bestEV = -Infinity;
