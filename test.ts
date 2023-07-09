@@ -2,14 +2,14 @@ import { assertEquals } from "https://deno.land/std@0.173.0/testing/asserts.ts";
 
 Deno.test("hi", () => {
   assertEquals(
-    calculateOptimalBet(
+    calculateBet(
       /*userOdds*/ { odds: [50, 50], maxBet: 100 },
       /*chatOdds*/ { pointsPerSide: [6000, 4000] },
     ),
     { side: 1, points: 100 },
   );
   assertEquals(
-    calculateOptimalBet(
+    calculateBet(
       /*userOdds*/ { odds: [50, 50], maxBet: 100 },
       /*chatOdds*/ { pointsPerSide: [4000, 6000] },
     ),
@@ -17,7 +17,7 @@ Deno.test("hi", () => {
   );
 
   assertEquals(
-    calculateOptimalBet(
+    calculateBet(
       /*userOdds*/ { odds: [75, 25], maxBet: 100 },
       /*chatOdds*/ { pointsPerSide: [4000, 6000] },
     ),
@@ -25,7 +25,7 @@ Deno.test("hi", () => {
   );
 
   assertEquals(
-    calculateOptimalBet(
+    calculateBet(
       /*userOdds*/ { odds: [75, 25], maxBet: 100 },
       /*chatOdds*/ { pointsPerSide: [6000, 4000] },
     ),
@@ -36,7 +36,7 @@ Deno.test("hi", () => {
 Deno.test("voting for less likely winner is best", () => {
   assertEquals(
     calculateOptimalBet(
-      /*userOdds*/ { odds: [75, 25], maxBet: 10_000 },
+      /*userOdds*/ { odds: [75, 25] },
       /*chatOdds*/ { pointsPerSide: [900, 100] },
     )!.side,
     1,
@@ -46,7 +46,7 @@ Deno.test("voting for less likely winner is best", () => {
 Deno.test("The only winning move is not to play.", () => {
   assertEquals(
     calculateOptimalBet(
-      /*userOdds*/ { odds: [50, 50], maxBet: 51 },
+      /*userOdds*/ { odds: [50, 50] },
       /*chatOdds*/ { pointsPerSide: [0, 0] },
     ),
     null,
@@ -54,7 +54,7 @@ Deno.test("The only winning move is not to play.", () => {
 
   assertEquals(
     calculateOptimalBet(
-      /*userOdds*/ { odds: [90, 10], maxBet: 50_000 },
+      /*userOdds*/ { odds: [90, 10] },
       /*chatOdds*/ { pointsPerSide: [9, 1] },
     ),
     null,
@@ -64,7 +64,7 @@ Deno.test("The only winning move is not to play.", () => {
 Deno.test("bet less than maxBet", () => {
   assertEquals(
     calculateOptimalBet(
-      /*userOdds*/ { odds: [50, 50], maxBet: 51 },
+      /*userOdds*/ { odds: [50, 50] },
       /*chatOdds*/ { pointsPerSide: [150, 100] },
     ),
     { side: 1, points: 22 },
@@ -72,15 +72,7 @@ Deno.test("bet less than maxBet", () => {
 
   assertEquals(
     calculateOptimalBet(
-      /*userOdds*/ { odds: [50, 50], maxBet: 49 },
-      /*chatOdds*/ { pointsPerSide: [150, 100] },
-    ),
-    { side: 1, points: 22 },
-  );
-
-  assertEquals(
-    calculateOptimalBet(
-      /*userOdds*/ { odds: [90, 10], maxBet: 100 },
+      /*userOdds*/ { odds: [90, 10] },
       /*chatOdds*/ { pointsPerSide: [8, 1] },
     ),
     { side: 0, points: 1 },
@@ -88,7 +80,7 @@ Deno.test("bet less than maxBet", () => {
 
   assertEquals(
     calculateOptimalBet(
-      /*userOdds*/ { odds: [90, 10], maxBet: 10_000 },
+      /*userOdds*/ { odds: [90, 10] },
       /*chatOdds*/ { pointsPerSide: [800, 100] },
     ),
     { side: 0, points: 49 },
@@ -97,7 +89,7 @@ Deno.test("bet less than maxBet", () => {
 
 Deno.test("bet with a best bet amount greater than maxBet", () => {
   assertEquals(
-    calculateOptimalBet(
+    calculateBet(
       /*userOdds*/ { odds: [50, 50], maxBet: 10 },
       /*chatOdds*/ { pointsPerSide: [150, 100] },
     ),
@@ -105,8 +97,20 @@ Deno.test("bet with a best bet amount greater than maxBet", () => {
   );
 });
 
-function calculateOptimalBet(
+function calculateBet(
   userOdds: { odds: [number, number]; maxBet: number },
+  chatOdds: { pointsPerSide: [number, number] },
+): { side: number; points: number } | null {
+  let optimalBet = calculateOptimalBet(userOdds, chatOdds);
+  if (optimalBet === null) return null;
+  return {
+    side: optimalBet.side,
+    points: Math.min(optimalBet.points, userOdds.maxBet),
+  };
+}
+
+function calculateOptimalBet(
+  userOdds: { odds: [number, number] },
   chatOdds: { pointsPerSide: [number, number] },
 ): { side: number; points: number } | null {
   // Ex[Py_, Ca_, Pa_, Pb_]:=Py*(Ca*Pb/(Py+Pa)-(1-Ca))
@@ -167,13 +171,13 @@ function calculateOptimalBet(
   if (optimalBetA > 0) {
     return {
       side: 0,
-      points: Math.round(Math.min(optimalBetA, userOdds.maxBet)),
+      points: optimalBetA,
     };
   }
   if (optimalBetB > 0) {
     return {
       side: 1,
-      points: Math.round(Math.min(optimalBetB, userOdds.maxBet)),
+      points: optimalBetB,
     };
   }
   return null;
