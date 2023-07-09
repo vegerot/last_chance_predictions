@@ -34,51 +34,88 @@ Deno.test("hi", () => {
 
   assertEquals(
     calculateOptimalBet(
-      /*userOdds*/ { odds: [50, 50], maxBet: 49 },
-      /*chatOdds*/ { pointsPerSide: [150, 100] },
-    ),
-    { side: 1, points: 49 },
-  );
-
-  assertEquals(
-    calculateOptimalBet(
       /*userOdds*/ { odds: [50, 50], maxBet: 51 },
-      /*chatOdds*/ { pointsPerSide: [150, 100] },
+      /*chatOdds*/ { pointsPerSide: [0, 0] },
     ),
     null,
   );
 });
 
-// assertEquals(
-//   someFutureFunction(
-//     /*userOdds*/ { odds: [50, 50], maxBet: 51 },
-//     /*chatOdds*/ { pointsPerSide: [150, 100] },
-//   ),
-// {side: 1, points: 49},
-// );
+Deno.test("bet less than maxBet", () => {
+  assertEquals(
+    calculateOptimalBet(
+      /*userOdds*/ { odds: [50, 50], maxBet: 51 },
+      /*chatOdds*/ { pointsPerSide: [150, 100] },
+    ),
+    { side: 1, points: 22 },
+  );
+
+  assertEquals(
+    calculateOptimalBet(
+      /*userOdds*/ { odds: [50, 50], maxBet: 49 },
+      /*chatOdds*/ { pointsPerSide: [150, 100] },
+    ),
+    { side: 1, points: 22 },
+  );
+});
+
+Deno.test("bet with a best bet amount greater than maxBet", () => {
+  assertEquals(
+    calculateOptimalBet(
+      /*userOdds*/ { odds: [50, 50], maxBet: 10 },
+      /*chatOdds*/ { pointsPerSide: [150, 100] },
+    ),
+    { side: 1, points: 10 }, // Best bet amount is 22, but maxBet is 10.
+  );
+});
 
 function calculateOptimalBet(
   userOdds: { odds: [number, number]; maxBet: number },
   chatOdds: { pointsPerSide: [number, number] },
 ): { side: number; points: number } | null {
-  let evIfSideA = expectedValue({ odds: userOdds.odds }, {
-    pointsPerSide: [
-      chatOdds.pointsPerSide[0] + userOdds.maxBet,
-      chatOdds.pointsPerSide[1],
-    ],
-  })[0];
-  let evIfSideB = expectedValue({ odds: userOdds.odds }, {
-    pointsPerSide: [
-      chatOdds.pointsPerSide[0],
-      userOdds.maxBet + chatOdds.pointsPerSide[1],
-    ],
-  })[1];
-  if (evIfSideA < 0 && evIfSideB < 0) return null;
-  if (evIfSideA > evIfSideB) {
-    return { side: 0, points: userOdds.maxBet };
-  } else {
-    return { side: 1, points: userOdds.maxBet };
+  let bet = userOdds.maxBet;
+  let bestSide;
+  let bestBet = -Infinity;
+  let bestEV = -Infinity;
+  for (let bet = 0; bet <= userOdds.maxBet; ++bet) {
+    let evIfSideA = expectedValue({ odds: userOdds.odds }, {
+      pointsPerSide: [
+        chatOdds.pointsPerSide[0] + bet,
+        chatOdds.pointsPerSide[1],
+      ],
+    })[0];
+    let evIfSideB = expectedValue({ odds: userOdds.odds }, {
+      pointsPerSide: [
+        chatOdds.pointsPerSide[0],
+        bet + chatOdds.pointsPerSide[1],
+      ],
+    })[1];
+    let fractionOfWinningIfSideA = chatOdds.pointsPerSide[0] === 0
+      ? bet
+      : bet / (bet + chatOdds.pointsPerSide[0]);
+    let fractionOfWinningIfSideB = chatOdds.pointsPerSide[1] === 0
+      ? bet
+      : bet / (bet + chatOdds.pointsPerSide[1]);
+    evIfSideA = evIfSideA * fractionOfWinningIfSideA;
+    evIfSideB = evIfSideB * fractionOfWinningIfSideB;
+    if (evIfSideA > evIfSideB) {
+      if (evIfSideA > bestEV) {
+        bestBet = bet;
+        bestEV = evIfSideA;
+        bestSide = 0;
+      }
+    } else {
+      if (evIfSideB > bestEV) {
+        bestBet = bet;
+        bestEV = evIfSideB;
+        bestSide = 1;
+      }
+    }
   }
+  if (bestBet === 0) {
+    return null;
+  }
+  return { side: bestSide!, points: bestBet };
 }
 
 Deno.test("expected value of 50/50", () => {
