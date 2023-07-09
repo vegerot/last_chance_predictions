@@ -104,18 +104,22 @@ function calculateOptimalBet(
   let bestBet = -Infinity;
   let bestEV = -Infinity;
   for (let bet = 0; bet <= userOdds.maxBet; ++bet) {
-    let evIfSideA = expectedValues({ odds: userOdds.odds,
+    let evIfSideA = expectedValue({
+      odds: userOdds.odds,
       pointsPerSide: [
         chatOdds.pointsPerSide[0] + bet,
         chatOdds.pointsPerSide[1],
       ],
-    })[0];
-    let evIfSideB = expectedValues({ odds: userOdds.odds,
+      side: 0,
+    });
+    let evIfSideB = expectedValue({
+      odds: userOdds.odds,
       pointsPerSide: [
         chatOdds.pointsPerSide[0],
         bet + chatOdds.pointsPerSide[1],
       ],
-    })[1];
+      side: 1,
+    });
     let fractionOfWinningIfSideA = chatOdds.pointsPerSide[0] === 0
       ? bet
       : bet / (bet + chatOdds.pointsPerSide[0]);
