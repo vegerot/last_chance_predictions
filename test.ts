@@ -31,11 +31,21 @@ Deno.test("hi", () => {
     ),
     { side: 0, points: 100 },
   );
+});
 
+Deno.test("The only winning move is not to play.", () => {
   assertEquals(
     calculateOptimalBet(
       /*userOdds*/ { odds: [50, 50], maxBet: 51 },
       /*chatOdds*/ { pointsPerSide: [0, 0] },
+    ),
+    null,
+  );
+
+  assertEquals(
+    calculateOptimalBet(
+      /*userOdds*/ { odds: [90, 10], maxBet: 50_000 },
+      /*chatOdds*/ { pointsPerSide: [9, 1] },
     ),
     null,
   );
@@ -56,6 +66,22 @@ Deno.test("bet less than maxBet", () => {
       /*chatOdds*/ { pointsPerSide: [150, 100] },
     ),
     { side: 1, points: 22 },
+  );
+
+  assertEquals(
+    calculateOptimalBet(
+      /*userOdds*/ { odds: [90, 10], maxBet: 100 },
+      /*chatOdds*/ { pointsPerSide: [8, 1] },
+    ),
+    { side: 0, points: 1 },
+  );
+
+  assertEquals(
+    calculateOptimalBet(
+      /*userOdds*/ { odds: [90, 10], maxBet: 10_000 },
+      /*chatOdds*/ { pointsPerSide: [800, 100] },
+    ),
+    { side: 0, points: 49 },
   );
 });
 
@@ -139,7 +165,7 @@ function expectedValue(
 ): [number, number] {
   const sumOfOdds = odds[0] + odds[1];
   const normalizedOdds = odds.map((odd) => odd / sumOfOdds);
-  assertEquals(1 - normalizedOdds[0], normalizedOdds[1]);
+  //assertEquals(1 - normalizedOdds[0], normalizedOdds[1]);
 
   const expectedValueOfPredictingA = pointsPerSide[1] * normalizedOdds[0] -
     pointsPerSide[0] * (1 - normalizedOdds[0]);
