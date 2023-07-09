@@ -104,13 +104,13 @@ function calculateOptimalBet(
   let bestBet = -Infinity;
   let bestEV = -Infinity;
   for (let bet = 0; bet <= userOdds.maxBet; ++bet) {
-    let evIfSideA = expectedValue({ odds: userOdds.odds }, {
+    let evIfSideA = expectedValues({ odds: userOdds.odds,
       pointsPerSide: [
         chatOdds.pointsPerSide[0] + bet,
         chatOdds.pointsPerSide[1],
       ],
     })[0];
-    let evIfSideB = expectedValue({ odds: userOdds.odds }, {
+    let evIfSideB = expectedValues({ odds: userOdds.odds,
       pointsPerSide: [
         chatOdds.pointsPerSide[0],
         bet + chatOdds.pointsPerSide[1],
@@ -145,31 +145,44 @@ function calculateOptimalBet(
 }
 
 Deno.test("expected value of 50/50", () => {
-  assertEquals(expectedValue({ odds: [50, 50] }, { pointsPerSide: [1, 1] }), [
+  assertEquals(expectedValues({ odds: [50, 50], pointsPerSide: [1, 1] }), [
     0,
     0,
   ]);
   assertEquals(
-    expectedValue({ odds: [75, 25] }, { pointsPerSide: [100, 100] }),
+    expectedValues({ odds: [75, 25], pointsPerSide: [100, 100] }),
     [100 * .75 - 100 * .25, /*=50*/ -100 * .75 + 100 * .25 /*=-50*/],
   );
   assertEquals(
-    expectedValue({ odds: [50, 50] }, { pointsPerSide: [1000, 2000] }),
+    expectedValues({ odds: [50, 50], pointsPerSide: [1000, 2000] }),
     [500, -500],
   );
 });
 
-function expectedValue(
-  { odds }: { odds: [number, number] },
-  { pointsPerSide }: { pointsPerSide: [number, number] },
+function expectedValues(
+  { odds, pointsPerSide }: {
+    odds: [number, number];
+    pointsPerSide: [number, number];
+  },
 ): [number, number] {
+  return [
+    expectedValue({ odds, pointsPerSide, side: 0 }),
+    expectedValue({ odds, pointsPerSide, side: 1 }),
+  ];
+}
+
+function expectedValue(
+  { odds, pointsPerSide, side }: {
+    odds: [number, number];
+    pointsPerSide: [number, number];
+    side: number;
+  },
+): number {
   const sumOfOdds = odds[0] + odds[1];
   const normalizedOdds = odds.map((odd) => odd / sumOfOdds);
   //assertEquals(1 - normalizedOdds[0], normalizedOdds[1]);
 
-  const expectedValueOfPredictingA = pointsPerSide[1] * normalizedOdds[0] -
-    pointsPerSide[0] * (1 - normalizedOdds[0]);
-  const expectedValueOfPredictingB = pointsPerSide[0] * normalizedOdds[1] -
-    pointsPerSide[1] * (1 - normalizedOdds[1]);
-  return [expectedValueOfPredictingA, expectedValueOfPredictingB];
+  let pointsOnOtherSide = pointsPerSide[1 - side];
+  return pointsOnOtherSide * normalizedOdds[side] -
+    pointsPerSide[side] * (1 - normalizedOdds[side]);
 }
