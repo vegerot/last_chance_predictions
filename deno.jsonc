@@ -1,3 +1,8 @@
 {
-  "fmt": { "exclude": [".sl"] }
+  "fmt": { "exclude": [".sl"] },
+  "lint": {
+    "rules": {
+      "exclude": ["prefer-const"]
+    }
+  }
 }

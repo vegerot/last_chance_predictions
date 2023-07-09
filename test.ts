@@ -1,6 +1,90 @@
 import { assertEquals } from "https://deno.land/std@0.173.0/testing/asserts.ts";
 
-//Deno.test("hi", () => { assertEquals( calculateOptimalBet( /*userOdds*/ { odds: [50, 50], bet: 100 }, /*chatOdds*/ { pointsPerSide: [6000, 4000] },), { side: 1, points: 100 },); });
+Deno.test("hi", () => {
+  assertEquals(
+    calculateOptimalBet(
+      /*userOdds*/ { odds: [50, 50], maxBet: 100 },
+      /*chatOdds*/ { pointsPerSide: [6000, 4000] },
+    ),
+    { side: 1, points: 100 },
+  );
+  assertEquals(
+    calculateOptimalBet(
+      /*userOdds*/ { odds: [50, 50], maxBet: 100 },
+      /*chatOdds*/ { pointsPerSide: [4000, 6000] },
+    ),
+    { side: 0, points: 100 },
+  );
+
+  assertEquals(
+    calculateOptimalBet(
+      /*userOdds*/ { odds: [75, 25], maxBet: 100 },
+      /*chatOdds*/ { pointsPerSide: [4000, 6000] },
+    ),
+    { side: 0, points: 100 },
+  );
+
+  assertEquals(
+    calculateOptimalBet(
+      /*userOdds*/ { odds: [75, 25], maxBet: 100 },
+      /*chatOdds*/ { pointsPerSide: [6000, 4000] },
+    ),
+    { side: 0, points: 100 },
+  );
+
+  assertEquals(
+    calculateOptimalBet(
+      /*userOdds*/ { odds: [50, 50], maxBet: 49 },
+      /*chatOdds*/ { pointsPerSide: [150, 100] },
+    ),
+    { side: 1, points: 49 },
+  );
+
+  assertEquals(
+    calculateOptimalBet(
+      /*userOdds*/ { odds: [50, 50], maxBet: 51 },
+      /*chatOdds*/ { pointsPerSide: [150, 100] },
+    ),
+    null,
+  );
+});
+
+// assertEquals(
+//   someFutureFunction(
+//     /*userOdds*/ { odds: [50, 50], maxBet: 51 },
+//     /*chatOdds*/ { pointsPerSide: [150, 100] },
+//   ),
+// {side: 1, points: 49},
+// );
+
+function calculateOptimalBet(
+  userOdds: { odds: [number, number]; maxBet: number },
+  chatOdds: { pointsPerSide: [number, number] },
+): { side: number; points: number } | null {
+  let evIfSideA = expectedValue({ odds: userOdds.odds }, {
+    pointsPerSide: [
+      chatOdds.pointsPerSide[0] + userOdds.maxBet,
+      chatOdds.pointsPerSide[1],
+    ],
+  })[0];
+  let evIfSideB = expectedValue({ odds: userOdds.odds }, {
+    pointsPerSide: [
+      chatOdds.pointsPerSide[0],
+      userOdds.maxBet + chatOdds.pointsPerSide[1],
+    ],
+  })[1];
+  if (evIfSideA > evIfSideB) {
+    if (evIfSideA < 0) {
+      return null;
+    }
+    return { side: 0, points: userOdds.maxBet };
+  } else {
+    if (evIfSideB < 0) {
+      return null;
+    }
+    return { side: 1, points: userOdds.maxBet };
+  }
+}
 
 Deno.test("expected value of 50/50", () => {
   assertEquals(expectedValue({ odds: [50, 50] }, { pointsPerSide: [1, 1] }), [
