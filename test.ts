@@ -33,6 +33,8 @@ Deno.test("hi", () => {
   );
 });
 
+// TODO: test when you would vote for who you think is less likely to win
+
 Deno.test("The only winning move is not to play.", () => {
   assertEquals(
     calculateOptimalBet(
@@ -96,6 +98,81 @@ Deno.test("bet with a best bet amount greater than maxBet", () => {
 });
 
 function calculateOptimalBet(
+  userOdds: { odds: [number, number]; maxBet: number },
+  chatOdds: { pointsPerSide: [number, number] },
+): { side: number; points: number } | null {
+  // Ex[Py_, Ca_, Pa_, Pb_]:=Py*(Ca*Pb/(Py+Pa)-(1-Ca))
+  // Maximize[{Ex[Py, Ca, Pa, Pb],Ca>0 &&Pa>0&&Pb>0&&Ca<1 &&Py>0 }, Py]
+  function hmtbRounded(
+    chance: number,
+    pointsOnMySide: number,
+    pointsOnTheirSide: number,
+  ): number {
+    let preciseBet = hmtb(chance, pointsOnMySide, pointsOnTheirSide);
+    let low = Math.floor(preciseBet);
+    let high = Math.ceil(preciseBet);
+    let lowExpected = expectedValue2(
+      low,
+      chance,
+      pointsOnMySide,
+      pointsOnTheirSide,
+    );
+    let highExpected = expectedValue2(
+      high,
+      chance,
+      pointsOnMySide,
+      pointsOnTheirSide,
+    );
+    if (lowExpected > highExpected) {
+      return low;
+    } else return high;
+  }
+  function hmtb(
+    chance: number,
+    pointsOnMySide: number,
+    pointsOnTheirSide: number,
+  ): number {
+    return (pointsOnMySide - chance * pointsOnMySide -
+      Math.sqrt((1 - chance) * chance * pointsOnMySide * pointsOnTheirSide)) /
+      (-1 + chance);
+  }
+  function expectedValue2(
+    yourBet: number,
+    chance: number,
+    pointsOnMySide: number,
+    pointsOnTheirSide: number,
+  ): number {
+    return yourBet *
+      (chance * pointsOnTheirSide / (yourBet + pointsOnMySide) - (1 - chance));
+  }
+  let odds = normalizeOdds(userOdds.odds);
+  let optimalBetA = hmtbRounded(
+    odds[0],
+    chatOdds.pointsPerSide[0],
+    chatOdds.pointsPerSide[1],
+  );
+  let optimalBetB = hmtbRounded(
+    odds[1],
+    chatOdds.pointsPerSide[1],
+    chatOdds.pointsPerSide[0],
+  );
+  if (optimalBetA > 0) {
+    return {
+      side: 0,
+      points: Math.round(Math.min(optimalBetA, userOdds.maxBet)),
+    };
+  }
+  if (optimalBetB > 0) {
+    return {
+      side: 1,
+      points: Math.round(Math.min(optimalBetB, userOdds.maxBet)),
+    };
+  }
+  return null;
+}
+
+// TODO: test against calculateOptimalBet
+function calculateOptimalBetSlow(
   userOdds: { odds: [number, number]; maxBet: number },
   chatOdds: { pointsPerSide: [number, number] },
 ): { side: number; points: number } | null {
@@ -181,11 +258,14 @@ function expectedValue(
     side: number;
   },
 ): number {
-  const sumOfOdds = odds[0] + odds[1];
-  const normalizedOdds = odds.map((odd) => odd / sumOfOdds);
-  //assertEquals(1 - normalizedOdds[0], normalizedOdds[1]);
+  const normalizedOdds = normalizeOdds(odds);
 
   let pointsOnOtherSide = pointsPerSide[1 - side];
   return pointsOnOtherSide * normalizedOdds[side] -
     pointsPerSide[side] * (1 - normalizedOdds[side]);
+}
+
+function normalizeOdds(odds: [number, number]): [number, number] {
+  const sumOfOdds = odds[0] + odds[1];
+  return odds.map((odd) => odd / sumOfOdds) as [number, number];
 }
