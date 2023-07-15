@@ -1,3 +1,7 @@
+browser.webNavigation.onCommitted.addListener(() => {
+  console.log("ffcs.js: COMMITTED NAV");
+}, { url: [{ urlMatches: "https://*.twitch.tv/*" }] });
+
 console.log("final_fate_content_script.js loaded");
 let root = document.getElementById("root")
 console.assert(root) // can access host document
