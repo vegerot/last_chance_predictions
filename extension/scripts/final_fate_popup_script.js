@@ -146,8 +146,11 @@ function stopPredictionTimer() {
     }
 }
 function updatePredictionTimer() {
-    let msRemaining = predictionTimerDeadlineTimeMS - Date.now();
-    predictionTimerElement.textContent = `${msRemaining/1000} s`;
+    let totalSecondsRemaining = Math.floor((predictionTimerDeadlineTimeMS - Date.now()) / 1000);
+    if (totalSecondsRemaining < 0) totalSecondsRemaining = 0;
+    let secondsRemaining = totalSecondsRemaining % 60;
+    let minutesRemaining = Math.floor(totalSecondsRemaining / 60);
+    predictionTimerElement.textContent = `${minutesRemaining.toString().padStart(2, '0')}:${secondsRemaining.toString().padStart(2, '0')}`;
 }
 
 function test() {
