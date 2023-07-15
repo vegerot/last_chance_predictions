@@ -132,6 +132,15 @@ function test() {
     }, 2000);
 }
 
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    switch (msg.method) {
+    case 'sw/predictionStateUpdated':
+        console.log('popup: got updated prediction state:', msg.predictionState);
+        predictionStateUpdated(msg.predictionState);
+        break;
+    }
+});
+
 async function requestDataFromServiceWorkerAsync() {
   let predictionState = await chrome.runtime.sendMessage({
     method: 'popup/getPredictionState',

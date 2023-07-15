@@ -31,6 +31,22 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
 });
 
+// Send predictionState to the popup (UI).
+function predictionStateUpdated(predictionState) {
+    chrome.runtime.sendMessage({
+        method: 'sw/predictionStateUpdated',
+        predictionState: predictionState,
+    }).catch((e) => {
+        if (e instanceof Error) {
+            if (e.message === "Could not establish connection. Receiving end does not exist.") {
+                // The pop-up isn't open. Ignore this error.
+                return;
+            }
+        }
+        throw e; // Make the error easier to find in dev tools.
+    });
+}
+
 // MUST CLICK ON EXTENSION ICON TO ACTIVATE LISTENER
 chrome.webRequest.onBeforeSendHeaders.addListener(
   (...args) => {
