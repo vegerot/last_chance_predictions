@@ -1,4 +1,7 @@
-export async function getActiveChannelPredictions(client_credentials, channel_name) {
+export async function getActiveChannelPredictions(
+  client_credentials,
+  channel_name,
+) {
   let body = [
     {
       operationName: "ChannelPointsPredictionContext",
@@ -6,9 +9,10 @@ export async function getActiveChannelPredictions(client_credentials, channel_na
       extensions: {
         persistedQuery: {
           version: 1,
-          sha256Hash: "beb846598256b75bd7c1fe54a80431335996153e358ca9c7837ce7bb83d7d383"
-        }
-      }
+          sha256Hash:
+            "beb846598256b75bd7c1fe54a80431335996153e358ca9c7837ce7bb83d7d383",
+        },
+      },
     },
     {
       operationName: "ChannelPointsPredictionBadges",
@@ -16,22 +20,24 @@ export async function getActiveChannelPredictions(client_credentials, channel_na
       extensions: {
         persistedQuery: {
           version: 1,
-          sha256Hash: "36995b30b22c31d1cd0aa329987ac9b5368bb7e6e1ab1df42808bdaa80a6dbf9"
-        }
-      }
+          sha256Hash:
+            "36995b30b22c31d1cd0aa329987ac9b5368bb7e6e1ab1df42808bdaa80a6dbf9",
+        },
+      },
     },
     {
       operationName: "ChannelPointsContext",
       variables: {
         channelLogin: channel_name,
-        includeGoalTypes: [ "CREATOR", "BOOST" ]
+        includeGoalTypes: ["CREATOR", "BOOST"],
       },
       extensions: {
         persistedQuery: {
           version: 1,
-          sha256Hash: "1530a003a7d374b0380b79db0be0534f30ff46e61cffa2bc0e2468a909fbc024"
-        }
-      }
+          sha256Hash:
+            "1530a003a7d374b0380b79db0be0534f30ff46e61cffa2bc0e2468a909fbc024",
+        },
+      },
     },
     {
       operationName: "ChannelPointsGlobalContext",
@@ -39,11 +45,12 @@ export async function getActiveChannelPredictions(client_credentials, channel_na
       extensions: {
         persistedQuery: {
           version: 1,
-          sha256Hash: "d3fa3a96e78a3e62bdd3ef3c4effafeda52442906cec41a9440e609a388679e2"
-        }
-      }
-    }
-  ]
+          sha256Hash:
+            "d3fa3a96e78a3e62bdd3ef3c4effafeda52442906cec41a9440e609a388679e2",
+        },
+      },
+    },
+  ];
 
   let result = await fetch("https://gql.twitch.tv/gql", {
     "headers": {
@@ -53,14 +60,14 @@ export async function getActiveChannelPredictions(client_credentials, channel_na
       "client-id": client_credentials.client_id,
       "client-session-id": client_credentials.session_id,
       "client-version": "9de5038a-c44b-49d2-ab46-20b6ad807deb",
-      "x-device-id": client_credentials.device_id
+      "x-device-id": client_credentials.device_id,
     },
     "referrer": "https://www.twitch.tv/",
     "body": JSON.stringify(body),
     "method": "POST",
-  }).then(res=>res.json())
+  }).then((res) => res.json());
 
-  return resultToPredictions(result)
+  return resultToPredictions(result);
 }
 
 // predictionSettings: {
@@ -73,27 +80,30 @@ export async function getActiveChannelPredictions(client_credentials, channel_na
 //   deadlineTimeMS: number | null,
 // }
 function resultToPredictions(result) {
-  let {activePredictionEvents} = result[0].data.community.channel
-  console.log({activePredictionEvents})
-  console.assert(activePredictionEvents.length <=1)
-  let predictionSettings = activePredictionEvents.map(prediction=> {
-    let {id, title, status, outcomes, createdAt, predictionWindowSeconds} = prediction
-    let deadlineTimeMS = new Date(createdAt).getTime() + predictionWindowSeconds * 1000
+  let { activePredictionEvents } = result[0].data.community.channel;
+  console.log({ activePredictionEvents });
+  console.assert(activePredictionEvents.length <= 1);
+  let predictionSettings = activePredictionEvents.map((prediction) => {
+    let { id, title, status, outcomes, createdAt, predictionWindowSeconds } =
+      prediction;
+    let deadlineTimeMS = new Date(createdAt).getTime() +
+      predictionWindowSeconds * 1000;
     let predictionSettings = {
       status: status.toLowerCase(),
-      outcomes: status === 'ACTIVE' ? outcomes.map(outcome => ({
-        color: outcome.color,
-        iconURI: outcome.badge.image4x,
-        name: outcome.title,
-      })) : null,
-      title: status === 'ACTIVE' ? title : null,
-      deadlineTimeMS: status === 'ACTIVE' ? deadlineTimeMS : null,
-    }
-    return predictionSettings
-  })
+      outcomes: status === "ACTIVE"
+        ? outcomes.map((outcome) => ({
+          color: outcome.color,
+          iconURI: outcome.badge.image4x,
+          name: outcome.title,
+        }))
+        : null,
+      title: status === "ACTIVE" ? title : null,
+      deadlineTimeMS: status === "ACTIVE" ? deadlineTimeMS : null,
+    };
+    return predictionSettings;
+  });
   return predictionSettings[0];
 }
-
 
 let exampleGraphqlResponse = {
   "data": {
@@ -112,7 +122,8 @@ let exampleGraphqlResponse = {
                 "title": "y",
                 "totalPoints": 0,
                 "badge": {
-                  "image4x": "https://static-cdn.jtvnw.net/badges/v1/e33d8b46-f63b-4e67-996d-4a7dcec0ad33/3",
+                  "image4x":
+                    "https://static-cdn.jtvnw.net/badges/v1/e33d8b46-f63b-4e67-996d-4a7dcec0ad33/3",
                 },
               },
               {
@@ -121,17 +132,18 @@ let exampleGraphqlResponse = {
                 "title": "n",
                 "totalPoints": 0,
                 "badge": {
-                  "image4x": "https://static-cdn.jtvnw.net/badges/v1/4b76d5f2-91cc-4400-adf2-908a1e6cfd1e/3",
+                  "image4x":
+                    "https://static-cdn.jtvnw.net/badges/v1/4b76d5f2-91cc-4400-adf2-908a1e6cfd1e/3",
                 },
-              }
+              },
             ],
             "predictionWindowSeconds": 1800,
             "status": "ACTIVE",
             "title": "uniquepredictionname",
             "winningOutcome": null,
-          }
+          },
         ],
       },
     },
   },
-}
+};
