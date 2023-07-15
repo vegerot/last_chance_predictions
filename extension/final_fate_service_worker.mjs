@@ -9,11 +9,23 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 })
 
 // MUST CLICK ON EXTENSION ICON TO ACTIVATE LISTENER
-chrome.webRequest.onCompleted.addListener(
+chrome.webRequest.onBeforeSendHeaders.addListener(
 	(...args) => {
-		console.log(...args)
+		const client_id = args[0].requestHeaders.find(h=>h.name.toLowerCase() === 'client-id')
+		const session_id = args[0].requestHeaders.find(h=>h.name.toLowerCase() === 'client-session-id')
+		const client_integrity = args[0].requestHeaders.find(h=>h.name.toLowerCase() === 'client-integrity')
+		client_state.client_id ??= client_id
+		client_state.session_id ??= session_id
+		client_state.client_integrity ??= client_integrity
 	},
 	{urls: ["https://*.twitch.tv/*"]},
-	["responseHeaders"] //this might break things?? https://developer.chrome.com/docs/extensions/reference/webRequest/#:~:text=If%20you%20really%20need%20to%20modify%20headers%20in%20a%20way%20to%20violate%20the%20CORS%20protocol%2C%20you%20need%20to%20specify%20%27extraHeaders%27%20in%20opt_extraInfoSpec
+	["requestHeaders"]
 )
 
+const client_state = {
+	client_id: null,
+	session_id: null,
+	client_integrity: null,
+}
+
+setTimeout(()=>console.log(client_state), 5000)
