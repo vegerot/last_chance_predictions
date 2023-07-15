@@ -90,3 +90,15 @@ const client_state = {
 };
 
 setTimeout(() => console.log(client_state), 5000);
+
+function testDifferentPredictionSettingsStates() {
+  setTimeout(() => {
+    currentPredictionState.predictionSettings.status = 'locked';
+    predictionStateUpdated();
+  }, 5000);
+  setTimeout(() => {
+    currentPredictionState.predictionSettings.status = 'none';
+    predictionStateUpdated();
+  }, 10000);
+}
+//testDifferentPredictionSettingsStates();
