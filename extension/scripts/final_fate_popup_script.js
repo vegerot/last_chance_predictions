@@ -1,7 +1,6 @@
 // TODO:
 // * sync slider with <output> elements
 // * put some things in a class
-// * call predictionStateUpdated from service worker
 // * figure out why TypeError: Cannot set properties of null (setting
 //   'textContent') (in updatePredictionTimer)
 
