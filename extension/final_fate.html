@@ -1,7 +1,107 @@
 <!doctype html>
-<html>
-  <body>
-    <h1>Hello, world!</h1>
-    <script src="scripts/final_fate_popup_script.js"></script>
-  </body>
-</html>
+<style>
+body {
+    background-color: #000;
+    color: #fff;
+    width: 300px;
+}
+
+/* Prevent text selection messing up slider dragging. */
+body {
+    user-select: none;
+}
+
+.dual-prediction {
+    display: grid;
+    grid-template-areas:
+        "outcome-a outcome-b"
+        "prediction prediction";
+}
+.dual-prediction .outcome-a {
+    grid-area: outcome-a;
+}
+.dual-prediction .outcome-b {
+    grid-area: outcome-b;
+}
+.dual-prediction [name="prediction"] {
+    grid-area: prediction;
+}
+
+.dual-prediction .outcome-a {
+    text-align: left;
+}
+.dual-prediction .outcome-b {
+    text-align: right;
+}
+
+.dual-prediction .outcome-a {
+    --outcome-color: var(--outcome-a-color);
+}
+.dual-prediction .outcome-b {
+    --outcome-color: var(--outcome-b-color);
+}
+
+.outcome .name,
+.outcome .estimate {
+    color: var(--outcome-color);
+}
+
+.dual-prediction [name="prediction"] {
+    width: 100%;
+}
+
+/* Customize styling of sliders: make the left track --left-color and right
+   track --left-color. */
+input[type="range"] {
+    accent-color: #ddd; /* Color of the thumb. */
+    --value: 0%;  /* Updated in JavaScript. */
+
+    appearance: none;
+    background: linear-gradient(to right, var(--left-color) var(--value), var(--right-color) var(--value));
+    border-radius: 15px;
+    height: 6px;
+}
+
+.dual-prediction [name="prediction"] {
+    --left-color: var(--outcome-a-color);
+    --right-color: var(--outcome-b-color);
+}
+
+input[name="seconds-before-deadline"] {
+    /* Max input is 1800 (4 characters). */
+    width: 4em;
+}
+
+input[name="point-limit"] {
+    /* Max input is 250000 (6 characters). */
+    width: 6em;
+}
+</style>
+
+<div id="active-prediction">
+    <h1 class="title">(prediction title)</h1>
+    <p>Prediction ends in <span class="prediction-countdown">(time)</span>
+
+    <div class="dual-prediction" style="--outcome-a-color: #f74379; --outcome-b-color: #3153cd;">
+        <div class="outcome outcome-a">
+            <h2 class="name">(outcome A)</h2>
+            <p><output class="estimate">...%</output></p>
+        </div>
+        <div class="outcome outcome-b">
+            <h2 class="name">(outcome B)</h2>
+            <p><output class="estimate">...%</output></p>
+        </div>
+        <input type="range" name="prediction" class="prediction-slider" min="0" max="100" step="1">
+    </div>
+
+    <div class="multi-prediction">
+        <!-- TODO -->
+    </div>
+
+    <p>Submit my prediction <input type="number" name="seconds-before-deadline" min="1" max="1800" step="0.5" value="2">&nbsp;seconds before the deadline</p>
+
+    <p>Predict with at most <input type="number" name="point-limit" min="1" max="250000" step="100" value="300">&nbsp;channel points</p>
+
+    <p><label><input type="checkbox" name="enable">&nbsp;Predict my points</label></p>
+</div>
+<script src="scripts/final_fate_popup_script.js"></script>
