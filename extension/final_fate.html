@@ -1,5 +1,11 @@
 <!doctype html>
 <style>
+.status-active .if:not(.if-active),
+.status-locked .if:not(.if-locked),
+.status-none .if:not(.if-none) {
+    display: none !important;
+}
+
 body {
     background-color: #000;
     color: #fff;
@@ -76,13 +82,23 @@ input[name="point-limit"] {
     /* Max input is 250000 (6 characters). */
     width: 6em;
 }
+
+.status-locked.no-predicted-points .predicted-points-container,
+.status-locked.predicted-points .no-predicted-points-container,
+.status-active .no-predicted-points-container,
+.status-active .predicted-points-container,
+.status-none .no-predicted-points-container,
+.status-none .predicted-points-container {
+    display: none !important;
+}
 </style>
 
-<div id="active-prediction">
-    <h1 class="title">(prediction title)</h1>
-    <p>Prediction ends in <span class="prediction-countdown">(time)</span>
+<div id="prediction" class="status-none">
+    <h1 class="title if if-active if-locked">(prediction title)</h1>
+    <p class="if if-active">Predictions ends in <span class="prediction-countdown">(time)</span>
+    <p class="if if-locked">Predictions are closed</p>
 
-    <div class="dual-prediction" style="--outcome-a-color: #f74379; --outcome-b-color: #3153cd;">
+    <div class="dual-prediction if if-active if-locked" style="--outcome-a-color: #f74379; --outcome-b-color: #3153cd;">
         <div class="outcome outcome-a">
             <h2 class="name">(outcome A)</h2>
             <p><output class="estimate">...%</output></p>
@@ -91,17 +107,20 @@ input[name="point-limit"] {
             <h2 class="name">(outcome B)</h2>
             <p><output class="estimate">...%</output></p>
         </div>
-        <input type="range" name="prediction" class="prediction-slider" min="0" max="100" step="1">
+        <input type="range" name="prediction" class="prediction-slider if if-active" min="0" max="100" step="1">
     </div>
 
-    <div class="multi-prediction">
+    <div class="multi-prediction if if-active if-locked">
         <!-- TODO -->
     </div>
 
-    <p>Submit my prediction <input type="number" name="seconds-before-deadline" min="1" max="1800" step="0.5" value="2">&nbsp;seconds before the deadline</p>
+    <p class="if if-active">Submit my prediction <input type="number" name="seconds-before-deadline" min="1" max="1800" step="0.5" value="2">&nbsp;seconds before the deadline</p>
 
-    <p>Predict with at most <input type="number" name="point-limit" min="1" max="250000" step="100" value="300">&nbsp;channel points</p>
+    <p class="if if-active">Predict with at most <input type="number" name="point-limit" min="1" max="250000" step="100" value="300">&nbsp;channel points</p>
 
-    <p><label><input type="checkbox" name="enable">&nbsp;Predict my points</label></p>
+    <p class="if if-active"><label><input type="checkbox" name="enable">&nbsp;Predict my points</label></p>
+
+    <p class="predicted-points-container">You predicted <span class="points-predicted">(points)</span> points (limit was <span class="point-limit">(points)</span>).</p>
+    <p class="no-predicted-points-container">You did not predict any points for this prediction.</p>
 </div>
 <script src="scripts/final_fate_popup_script.js"></script>
