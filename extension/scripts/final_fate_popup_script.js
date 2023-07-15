@@ -153,30 +153,6 @@ function updatePredictionTimer() {
     predictionTimerElement.textContent = `${minutesRemaining.toString().padStart(2, '0')}:${secondsRemaining.toString().padStart(2, '0')}`;
 }
 
-function test() {
-    let deadline = Date.now() + 2 * 60 * 1000;
-    let state = {
-        status: 'active',
-        title: 'Collect supers by 15:00?',
-        deadlineTimeMS: deadline,
-        outcomes: [
-            {color: 'pink', iconURI: '', name: 'YES'},
-            {color: 'blue', iconURI: '', name: 'no'},
-        ],
-        predictedPoints: null,
-        userPredictionRatios: [30, 70],
-        userPointLimit: 6969,
-        userEnabled: false,
-        userSecondsBeforeDeadline: 3,
-    };
-
-    predictionStateUpdated({...state});
-
-    setTimeout(() => {
-        predictionStateUpdated({...state, status: 'locked', predictedPoints: 69});
-    }, 2000);
-}
-
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     switch (msg.method) {
     case 'sw/predictionStateUpdated':
@@ -196,4 +172,3 @@ async function requestDataFromServiceWorkerAsync() {
 
 initUI();
 requestDataFromServiceWorkerAsync();
-//test();
