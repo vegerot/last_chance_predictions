@@ -6,6 +6,8 @@ function updatePredictionSliderCSS(element) {
     element.style.setProperty('--value', `${element.value}%`)
 }
 
+let selectedChannelID = null;
+
 function initUI() {
   stopPredictionTimer();
 
@@ -53,14 +55,24 @@ function sendUserSettingsToServiceWorker() {
   };
   chrome.runtime.sendMessage({
     method: 'popup/userStateChanged',
+    channelID: selectedChannelID,
     userSettings: userSettings,
   });
 }
 
-function appStateUpdated({
-    predictionSettings,
-    userSettings,
-    submission,
+function appStateUpdated(appState) {
+  if (selectedChannelID === null) {
+    if (appState.channels.length > 0) {
+      selectedChannelID = appState.channels[0].channelID;
+    }
+  }
+  channelStateUpdated(appState.channels[0]);
+}
+
+function channelStateUpdated({
+  predictionSettings,
+  userSettings,
+  submission,
 }) {
     console.assert(userSettings.predictionRatios.reduce((a, b) => a+b, 0) === 100, `prediction ratios should add up to 100: ${userSettings.predictionRatios}`);
     console.assert(userSettings.predictionRatios.length === predictionSettings.outcomes.length, 'number of outcomes must equal number of prediction ratios');

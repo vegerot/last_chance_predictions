@@ -1,7 +1,12 @@
-interface AppState extends ChannelState {
+interface AppState {
+  channels: ChannelState[];
 }
 
 interface ChannelState {
+  channelID: string;
+  channelDisplayName: string;
+  channelLoginName: string;
+
   predictionSettings: {
     status: 'active' | 'locked' | 'none',
     // non-null if .status !== 'none':

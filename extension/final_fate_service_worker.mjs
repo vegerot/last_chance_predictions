@@ -4,24 +4,31 @@ console.assert(typeof chrome.webRequest !== undefined); // can access most chrom
 
 let deadline = Date.now() + 2 * 60 * 1000;
 let currentAppState = {
-    predictionSettings: {
+  channels: [
+    {
+      channelID: "1234",
+      channelLoginName: "strager_sr",
+      channelDisplayName: "strager_SR",
+      predictionSettings: {
         status: 'active',
         title: 'Collect supers by 15:00?',
         deadlineTimeMS: deadline,
         outcomes: [
-            {color: 'pink', iconURI: '', name: 'YES'},
-            {color: 'blue', iconURI: '', name: 'no'},
+          {color: 'pink', iconURI: '', name: 'YES'},
+          {color: 'blue', iconURI: '', name: 'no'},
         ],
-    },
-    userSettings: {
+      },
+      userSettings: {
         predictionRatios: [30, 70],
         pointLimit: 6969,
         enabled: false,
         secondsBeforeDeadline: 3,
-    },
-    submission: {
+      },
+      submission: {
         points: 42,
+      },
     },
+  ],
 };
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -33,7 +40,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
     case 'popup/userStateChanged': {
         console.log('service worker: got popup/userStateChanged notification');
-        currentAppState.userSettings = msg.userSettings;
+        let channelState = currentAppState.channels.find(c => c.channelID === msg.channelID);
+        if (!channelState) {
+          console.error(`service worker: unknown channel ID ${msg.channelID}`);
+          return;
+        }
+        channelState.userSettings = msg.userSettings;
         //appStateUpdated();  // Don't bother. UI already knows.
         break;
     }
@@ -93,11 +105,11 @@ setTimeout(() => console.log(client_state), 5000);
 
 function testDifferentPredictionSettingsStates() {
   setTimeout(() => {
-    currentAppState.predictionSettings.status = 'locked';
+    currentAppState.channels[0].predictionSettings.status = 'locked';
     appStateUpdated();
   }, 5000);
   setTimeout(() => {
-    currentAppState.predictionSettings.status = 'none';
+    currentAppState.channels[0].predictionSettings.status = 'none';
     appStateUpdated();
   }, 10000);
 }
