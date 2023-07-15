@@ -1,3 +1,8 @@
+// TODO:
+// * sync slider with <output> elements
+// * put some things in a class
+// * call predictionStateUpdated from service worker
+
 function updatePredictionSliderCSS(element) {
     element.style.setProperty('--value', `${element.value}%`)
 }
