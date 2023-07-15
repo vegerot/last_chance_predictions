@@ -1,3 +1,4 @@
+import {getActiveChannelPredictions} from "./get-active-predictions.mjs";
 console.log("final_fate_service_worker.js loaded");
 console.assert(typeof document === "undefined"); // cannot access host document in service worker
 console.assert(typeof chrome.webRequest !== undefined); // can access most chrome APIs in service workers
@@ -99,6 +100,7 @@ const client_state = {
   session_id: null,
 }
 setTimeout(() => console.log(client_state), 5000);
+setTimeout(async ()=>console.log(await getActiveChannelPredictions(client_state, "strager_sr")), 6000);
 
 function testDifferentPredictionSettingsStates() {
   setTimeout(() => {
