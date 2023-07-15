@@ -31,6 +31,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         sendResponse(currentPredictionState);
         break;
     }
+    case 'popup/userStateChanged': {
+        console.log('service worker: got popup/userStateChanged notification');
+        currentPredictionState.userSettings = msg.userSettings;
+        //predictionStateUpdated();  // Don't bother. UI already knows.
+        break;
+    }
     default:
         console.log(msg.yourMom);
         console.assert(msg.yourMom === "heyFromTwitch.tv");
@@ -40,10 +46,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 });
 
 // Send predictionState to the popup (UI).
-function predictionStateUpdated(predictionState) {
+function predictionStateUpdated() {
     chrome.runtime.sendMessage({
         method: 'sw/predictionStateUpdated',
-        predictionState: predictionState,
+        predictionState: currentPredictionState,
     }).catch((e) => {
         if (e instanceof Error) {
             if (e.message === "Could not establish connection. Receiving end does not exist.") {

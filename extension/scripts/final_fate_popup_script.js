@@ -10,17 +10,39 @@ function updatePredictionSliderCSS(element) {
 }
 
 function initUI() {
-    stopPredictionTimer();
+  stopPredictionTimer();
 
-    document.body.addEventListener('input', (event) => {
-        let target = event.target;
-        if (target.classList.contains('prediction-slider')) {
-            updatePredictionSliderCSS(target);
-        }
-    });
-    for (let predictionSliderElement of document.querySelectorAll('.prediction-slider')) {
-        updatePredictionSliderCSS(predictionSliderElement);
+  document.body.addEventListener('input', (event) => {
+    let target = event.target;
+    if (target.classList.contains('prediction-slider')) {
+      updatePredictionSliderCSS(target);
     }
+  });
+  for (let predictionSliderElement of document.querySelectorAll('.prediction-slider')) {
+    updatePredictionSliderCSS(predictionSliderElement);
+  }
+
+  document.body.addEventListener('input', (_event) => {
+    userSettingsUpdated();
+  });
+}
+
+function userSettingsUpdated() {
+  console.log('popup: sending updated user settings');
+  let rootElement = document.querySelector('#prediction');
+  let dualOutcomesElement = rootElement.querySelector('.dual-prediction');
+  let predictionElement = dualOutcomesElement.querySelector('[name="prediction"]');
+
+  let userSettings = {
+    predictionRatios: [predictionElement.value, 100 - predictionElement.value],
+    pointLimit: rootElement.querySelector('[name="point-limit"]').value,
+    secondsBeforeDeadline: rootElement.querySelector('[name="seconds-before-deadline"]').value,
+    enabled: rootElement.querySelector('[name="enable"]').checked,
+  };
+  chrome.runtime.sendMessage({
+    method: 'popup/userStateChanged',
+    userSettings: userSettings,
+  });
 }
 
 // predictionSettings: {
@@ -80,7 +102,7 @@ function predictionStateUpdated({
 
     setValueIfDifferent(rootElement.querySelector('[name="seconds-before-deadline"]'), userSettings.secondsBeforeDeadline);
     setValueIfDifferent(rootElement.querySelector('[name="point-limit"]'), userSettings.pointLimit);
-    rootElement.querySelector('[name="enable"]').value = userSettings.enabled;
+    rootElement.querySelector('[name="enable"]').checked = userSettings.enabled;
 
     rootElement.querySelector('.points-predicted').textContent = `${submission?.points}`;
     rootElement.querySelector('.point-limit').textContent = `${userSettings.pointLimit}`;
