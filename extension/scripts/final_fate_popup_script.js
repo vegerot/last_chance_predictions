@@ -25,6 +25,21 @@ function initUI() {
 }
 
 function userSettingsUpdated() {
+  updateUIFromUserInput();
+  sendUserSettingsToServiceWorker();
+}
+
+function updateUIFromUserInput() {
+  let rootElement = document.querySelector('#prediction');
+  let dualOutcomesElement = rootElement.querySelector('.dual-prediction');
+  let predictionElement = dualOutcomesElement.querySelector('[name="prediction"]');
+
+  let predictionRatios = [Number(predictionElement.value), 100 - predictionElement.value];
+  dualOutcomesElement.querySelector('.outcome-a .estimate').textContent = `${predictionRatios[0].toFixed(0)}%`;
+  dualOutcomesElement.querySelector('.outcome-b .estimate').textContent = `${predictionRatios[1].toFixed(0)}%`;
+}
+
+function sendUserSettingsToServiceWorker() {
   console.log('popup: sending updated user settings');
   let rootElement = document.querySelector('#prediction');
   let dualOutcomesElement = rootElement.querySelector('.dual-prediction');
@@ -103,6 +118,8 @@ function predictionStateUpdated({
 
     rootElement.querySelector('.points-predicted').textContent = `${submission?.points}`;
     rootElement.querySelector('.point-limit').textContent = `${userSettings.pointLimit}`;
+
+    updateUIFromUserInput();
 }
 
 // setValueIfDifferent prevents moving the user's text cursor unnecessarily.
