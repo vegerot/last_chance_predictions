@@ -2,31 +2,33 @@ console.log("final_fate_service_worker.js loaded");
 console.assert(typeof document === "undefined"); // cannot access host document in service worker
 console.assert(typeof chrome.webRequest !== undefined); // can access most chrome APIs in service workers
 
+let deadline = Date.now() + 2 * 60 * 1000;
+let currentPredictionState = {
+    predictionSettings: {
+        status: 'active',
+        title: 'Collect supers by 15:00?',
+        deadlineTimeMS: deadline,
+        outcomes: [
+            {color: 'pink', iconURI: '', name: 'YES'},
+            {color: 'blue', iconURI: '', name: 'no'},
+        ],
+    },
+    userSettings: {
+        predictionRatios: [30, 70],
+        pointLimit: 6969,
+        enabled: false,
+        secondsBeforeDeadline: 3,
+    },
+    submission: {
+        points: 42,
+    },
+};
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     switch (msg.method) {
     case 'popup/getPredictionState': {
         console.log('service worker: got popup/getPredictionState request');
-        let deadline = Date.now() + 2 * 60 * 1000;
-        sendResponse({
-            predictionSettings: {
-                status: 'locked',
-                title: 'Collect supers by 15:00?',
-                deadlineTimeMS: deadline,
-                outcomes: [
-                    {color: 'pink', iconURI: '', name: 'YES'},
-                    {color: 'blue', iconURI: '', name: 'no'},
-                ],
-            },
-            userSettings: {
-                predictionRatios: [30, 70],
-                pointLimit: 6969,
-                enabled: false,
-                secondsBeforeDeadline: 3,
-            },
-            submission: {
-                points: 42,
-            },
-        });
+        sendResponse(currentPredictionState);
         break;
     }
     default:
