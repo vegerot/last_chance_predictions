@@ -101,4 +101,4 @@ function testDifferentPredictionSettingsStates() {
     appStateUpdated();
   }, 10000);
 }
-testDifferentPredictionSettingsStates();
+//testDifferentPredictionSettingsStates();
