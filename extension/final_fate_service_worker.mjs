@@ -76,31 +76,28 @@ function appStateUpdated() {
 // MUST CLICK ON EXTENSION ICON TO ACTIVATE LISTENER
 chrome.webRequest.onBeforeSendHeaders.addListener(
   (...args) => {
-    const client_id = args[0].requestHeaders.find((h) =>
-      h.name.toLowerCase() === "client-id"
-    );
-    const session_id = args[0].requestHeaders.find((h) =>
-      h.name.toLowerCase() === "client-session-id"
-    );
-    const client_integrity = args[0].requestHeaders.find((h) =>
-      h.name.toLowerCase() === "client-integrity"
-    );
+    const authorization_header = args[0].requestHeaders.find((h) => h.name.toLowerCase() === 'authorization')?.value
+    const client_id = args[0].requestHeaders.find((h) => h.name.toLowerCase() === "client-id")?.value;
+    const client_integrity = args[0].requestHeaders.find((h) => h.name.toLowerCase() === "client-integrity")?.value;
+    const device_id = args[0].requestHeaders.find((h) => h.name.toLowerCase() === 'x-device-id')?.value
+    const session_id = args[0].requestHeaders.find((h) => h.name.toLowerCase() === "client-session-id")?.value;
+    if (typeof authorization_header === "string") { client_state.authorization_header = authorization_header; }
     if (typeof client_id === "string") client_state.client_id = client_id;
+    if (typeof client_integrity === "string") { client_state.client_integrity = client_integrity; }
+    if (typeof device_id === "string") client_state.device_id = device_id;
     if (typeof session_id === "string") client_state.session_id = session_id;
-    if (typeof client_integrity === "string") {
-      client_state.client_integrity = client_integrity;
-    }
   },
   { urls: ["https://*.twitch.tv/*"] },
   ["requestHeaders"],
 );
 
 const client_state = {
+  authorization_header: null,
   client_id: null,
-  session_id: null,
   client_integrity: null,
-};
-
+  device_id: null,
+  session_id: null,
+}
 setTimeout(() => console.log(client_state), 5000);
 
 function testDifferentPredictionSettingsStates() {
