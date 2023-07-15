@@ -1,7 +1,8 @@
+const browser = chrome;
 import {getActiveChannelPredictions} from "./get-active-predictions.mjs";
 console.log("final_fate_service_worker.js loaded");
 console.assert(typeof document === "undefined"); // cannot access host document in service worker
-console.assert(typeof chrome.webRequest !== undefined); // can access most chrome APIs in service workers
+console.assert(typeof browser.webRequest !== undefined); // can access most chrome APIs in service workers
 
 let deadline = Date.now() + 2 * 60 * 1000;
 let currentAppState = {
@@ -32,7 +33,7 @@ let currentAppState = {
   ],
 };
 
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     switch (msg.method) {
     case 'popup/getAppState': {
         console.log('service worker: got popup/getAppState request');
@@ -60,7 +61,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 // Send appState to the popup (UI).
 function appStateUpdated() {
-    chrome.runtime.sendMessage({
+    browser.runtime.sendMessage({
         method: 'sw/appStateUpdated',
         appState: currentAppState,
     }).catch((e) => {
@@ -75,7 +76,7 @@ function appStateUpdated() {
 }
 
 // MUST CLICK ON EXTENSION ICON TO ACTIVATE LISTENER
-chrome.webRequest.onBeforeSendHeaders.addListener(
+browser.webRequest.onBeforeSendHeaders.addListener(
   (...args) => {
     const authorization_header = args[0].requestHeaders.find((h) => h.name.toLowerCase() === 'authorization')?.value
     const client_id = args[0].requestHeaders.find((h) => h.name.toLowerCase() === "client-id")?.value;

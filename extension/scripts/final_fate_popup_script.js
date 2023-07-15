@@ -1,3 +1,4 @@
+const browser = chrome
 // TODO:
 // * sync slider with <output> elements
 // * put some things in a class
@@ -53,7 +54,7 @@ function sendUserSettingsToServiceWorker() {
     secondsBeforeDeadline: rootElement.querySelector('[name="seconds-before-deadline"]').value,
     enabled: rootElement.querySelector('[name="enable"]').checked,
   };
-  chrome.runtime.sendMessage({
+  browser.runtime.sendMessage({
     method: 'popup/userStateChanged',
     channelID: selectedChannelID,
     userSettings: userSettings,
@@ -146,7 +147,7 @@ function updatePredictionTimer() {
     predictionTimerElement.textContent = `${minutesRemaining.toString().padStart(2, '0')}:${secondsRemaining.toString().padStart(2, '0')}`;
 }
 
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     switch (msg.method) {
     case 'sw/appStateUpdated':
         console.log('popup: got updated app state:', msg.appState);
@@ -156,7 +157,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 });
 
 async function requestDataFromServiceWorkerAsync() {
-  let appState = await chrome.runtime.sendMessage({
+  let appState = await browser.runtime.sendMessage({
     method: 'popup/getAppState',
   });
   console.log('popup: got initial app state:', appState);
