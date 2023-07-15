@@ -2,6 +2,8 @@
 // * sync slider with <output> elements
 // * put some things in a class
 // * call predictionStateUpdated from service worker
+// * figure out why TypeError: Cannot set properties of null (setting
+//   'textContent') (in updatePredictionTimer)
 
 function updatePredictionSliderCSS(element) {
     element.style.setProperty('--value', `${element.value}%`)
@@ -130,5 +132,14 @@ function test() {
     }, 2000);
 }
 
+async function requestDataFromServiceWorkerAsync() {
+  let predictionState = await chrome.runtime.sendMessage({
+    method: 'popup/getPredictionState',
+  });
+  console.log('popup: got initial prediction state:', predictionState);
+  predictionStateUpdated(predictionState);
+}
+
 initUI();
-test();
+requestDataFromServiceWorkerAsync();
+//test();

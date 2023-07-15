@@ -3,9 +3,32 @@ console.assert(typeof document === "undefined"); // cannot access host document 
 console.assert(typeof chrome.webRequest !== undefined); // can access most chrome APIs in service workers
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  console.log(msg.yourMom);
-  console.assert(msg.yourMom === "heyFromTwitch.tv");
-  sendResponse({ msgFromSW: "hi from SW" });
+    switch (msg.method) {
+    case 'popup/getPredictionState': {
+        console.log('service worker: got popup/getPredictionState request');
+        let deadline = Date.now() + 2 * 60 * 1000;
+        sendResponse({
+            status: 'active',
+            title: 'Collect supers by 15:00?',
+            deadlineTimeMS: deadline,
+            outcomes: [
+                {color: 'pink', iconURI: '', name: 'YES'},
+                {color: 'blue', iconURI: '', name: 'no'},
+            ],
+            predictedPoints: null,
+            userPredictionRatios: [30, 70],
+            userPointLimit: 6969,
+            userEnabled: false,
+            userSecondsBeforeDeadline: 3,
+        });
+        break;
+    }
+    default:
+        console.log(msg.yourMom);
+        console.assert(msg.yourMom === "heyFromTwitch.tv");
+        sendResponse({ msgFromSW: "hi from SW" });
+        break;
+    }
 });
 
 // MUST CLICK ON EXTENSION ICON TO ACTIVATE LISTENER
