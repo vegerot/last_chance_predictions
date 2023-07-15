@@ -25,8 +25,7 @@
         "https://www.twitch.tv/hi"
       ],
       "js": [
-        "scripts/final_fate_content_script.js",
-        "scripts/final_fate_popup_script.js"
+        "scripts/final_fate_content_script.js"
       ]
     }
   ],
