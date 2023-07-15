@@ -76,7 +76,7 @@ function sendUserSettingsToServiceWorker() {
 //   points: number,
 //   // TODO(strager): outcomeIndex
 // }
-function predictionStateUpdated({
+function appStateUpdated({
     predictionSettings,
     userSettings,
     submission,
@@ -155,19 +155,19 @@ function updatePredictionTimer() {
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     switch (msg.method) {
-    case 'sw/predictionStateUpdated':
-        console.log('popup: got updated prediction state:', msg.predictionState);
-        predictionStateUpdated(msg.predictionState);
+    case 'sw/appStateUpdated':
+        console.log('popup: got updated app state:', msg.appState);
+        appStateUpdated(msg.appState);
         break;
     }
 });
 
 async function requestDataFromServiceWorkerAsync() {
-  let predictionState = await chrome.runtime.sendMessage({
-    method: 'popup/getPredictionState',
+  let appState = await chrome.runtime.sendMessage({
+    method: 'popup/getAppState',
   });
-  console.log('popup: got initial prediction state:', predictionState);
-  predictionStateUpdated(predictionState);
+  console.log('popup: got initial app state:', appState);
+  appStateUpdated(appState);
 }
 
 initUI();

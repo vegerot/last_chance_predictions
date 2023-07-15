@@ -3,7 +3,7 @@ console.assert(typeof document === "undefined"); // cannot access host document 
 console.assert(typeof chrome.webRequest !== undefined); // can access most chrome APIs in service workers
 
 let deadline = Date.now() + 2 * 60 * 1000;
-let currentPredictionState = {
+let currentAppState = {
     predictionSettings: {
         status: 'active',
         title: 'Collect supers by 15:00?',
@@ -26,15 +26,15 @@ let currentPredictionState = {
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     switch (msg.method) {
-    case 'popup/getPredictionState': {
-        console.log('service worker: got popup/getPredictionState request');
-        sendResponse(currentPredictionState);
+    case 'popup/getAppState': {
+        console.log('service worker: got popup/getAppState request');
+        sendResponse(currentAppState);
         break;
     }
     case 'popup/userStateChanged': {
         console.log('service worker: got popup/userStateChanged notification');
-        currentPredictionState.userSettings = msg.userSettings;
-        //predictionStateUpdated();  // Don't bother. UI already knows.
+        currentAppState.userSettings = msg.userSettings;
+        //appStateUpdated();  // Don't bother. UI already knows.
         break;
     }
     default:
@@ -45,11 +45,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
 });
 
-// Send predictionState to the popup (UI).
-function predictionStateUpdated() {
+// Send appState to the popup (UI).
+function appStateUpdated() {
     chrome.runtime.sendMessage({
-        method: 'sw/predictionStateUpdated',
-        predictionState: currentPredictionState,
+        method: 'sw/appStateUpdated',
+        appState: currentAppState,
     }).catch((e) => {
         if (e instanceof Error) {
             if (e.message === "Could not establish connection. Receiving end does not exist.") {
@@ -93,12 +93,12 @@ setTimeout(() => console.log(client_state), 5000);
 
 function testDifferentPredictionSettingsStates() {
   setTimeout(() => {
-    currentPredictionState.predictionSettings.status = 'locked';
-    predictionStateUpdated();
+    currentAppState.predictionSettings.status = 'locked';
+    appStateUpdated();
   }, 5000);
   setTimeout(() => {
-    currentPredictionState.predictionSettings.status = 'none';
-    predictionStateUpdated();
+    currentAppState.predictionSettings.status = 'none';
+    appStateUpdated();
   }, 10000);
 }
-//testDifferentPredictionSettingsStates();
+testDifferentPredictionSettingsStates();
