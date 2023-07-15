@@ -83,12 +83,12 @@ input[name="point-limit"] {
     width: 6em;
 }
 
-.status-locked.no-predicted-points .predicted-points-container,
-.status-locked.predicted-points .no-predicted-points-container,
-.status-active .no-predicted-points-container,
-.status-active .predicted-points-container,
-.status-none .no-predicted-points-container,
-.status-none .predicted-points-container {
+.status-locked.no-submitted .submitted-container,
+.status-locked.submitted .no-submitted-container,
+.status-active .no-submitted-container,
+.status-active .submitted-container,
+.status-none .no-submitted-container,
+.status-none .submitted-container {
     display: none !important;
 }
 </style>
@@ -120,7 +120,7 @@ input[name="point-limit"] {
 
     <p class="if if-active"><label><input type="checkbox" name="enable">&nbsp;Predict my points</label></p>
 
-    <p class="predicted-points-container">You predicted <span class="points-predicted">(points)</span> points (limit was <span class="point-limit">(points)</span>).</p>
-    <p class="no-predicted-points-container">You did not predict any points for this prediction.</p>
+    <p class="submitted-container">You predicted <span class="points-predicted">(points)</span> points (limit was <span class="point-limit">(points)</span>).</p>
+    <p class="no-submitted-container">You did not predict any points for this prediction.</p>
 </div>
 <script src="scripts/final_fate_popup_script.js"></script>

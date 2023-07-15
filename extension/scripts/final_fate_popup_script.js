@@ -23,38 +23,44 @@ function initUI() {
     }
 }
 
-// status: 'active' | 'locked' | 'none'
-// outcomes: {color: string, iconURI: string, name: string}[]
-// predictedPoints: number | null
-// userPredictionRatios: number[]
-// userPointLimit: number | null
-// userSecondsBeforeDeadline: number | null
-// TODO(strager): predictedOutcomeIndex
+// predictionSettings: {
+//   status: 'active' | 'locked' | 'none',
+//   // non-null if .status !== 'none':
+//   outcomes: {color: string, iconURI: string, name: string}[] | null,
+//   // non-null if .status !== 'none':
+//   title: string | null,
+//   // non-null if .status === 'active'
+//   deadlineTimeMS: number | null,
+// }
+// userSettings: {
+//   predictionRatios: number[],
+//   pointLimit: number | null,
+//   secondsBeforeDeadline: number | null,
+//   enabled: boolean,
+// }
+// submission: null | {
+//   points: number,
+//   // TODO(strager): outcomeIndex
+// }
 function predictionStateUpdated({
-    status,
-    title,
-    deadlineTimeMS,
-    outcomes,
-    predictedPoints,
-    userPredictionRatios,
-    userPointLimit,
-    userEnabled,
-    userSecondsBeforeDeadline,
+    predictionSettings,
+    userSettings,
+    submission,
 }) {
-    console.assert(userPredictionRatios.reduce((a, b) => a+b, 0) === 100, `prediction ratios should add up to 100: ${userPredictionRatios}`);
-    console.assert(userPredictionRatios.length === outcomes.length, 'number of outcomes must equal number of prediction ratios');
+    console.assert(userSettings.predictionRatios.reduce((a, b) => a+b, 0) === 100, `prediction ratios should add up to 100: ${userSettings.predictionRatios}`);
+    console.assert(userSettings.predictionRatios.length === predictionSettings.outcomes.length, 'number of outcomes must equal number of prediction ratios');
 
-    startPredictionTimer(deadlineTimeMS);
+    startPredictionTimer(predictionSettings.deadlineTimeMS);
 
     let rootElement = document.querySelector('#prediction');
-    rootElement.classList.toggle('status-active', status === 'active');
-    rootElement.classList.toggle('status-locked', status === 'locked');
-    rootElement.classList.toggle('status-none', status === 'none');
-    rootElement.classList.toggle('predicted-points', predictedPoints !== null);
-    rootElement.classList.toggle('no-predicted-points', predictedPoints === null);
+    rootElement.classList.toggle('status-active', predictionSettings.status === 'active');
+    rootElement.classList.toggle('status-locked', predictionSettings.status === 'locked');
+    rootElement.classList.toggle('status-none', predictionSettings.status === 'none');
+    rootElement.classList.toggle('submitted', submission !== null);
+    rootElement.classList.toggle('no-submitted', submission === null);
 
-    rootElement.querySelector('.title').textContent = title;
-    if (outcomes.length === 2) {
+    rootElement.querySelector('.title').textContent = predictionSettings.title;
+    if (predictionSettings.outcomes.length === 2) {
         let dualOutcomesElement = rootElement.querySelector('.dual-prediction');
         let outcomeAElement = dualOutcomesElement.querySelector('.outcome-a');
         let outcomeBElement = dualOutcomesElement.querySelector('.outcome-b');
@@ -62,22 +68,22 @@ function predictionStateUpdated({
         function initOutcomeUI(outcomeElement, outcome) {
             outcomeElement.querySelector('.name').textContent = outcome.name;
         }
-        dualOutcomesElement.style.setProperty('--outcome-a-color', outcomes[0].color);
-        dualOutcomesElement.style.setProperty('--outcome-b-color', outcomes[1].color);
-        initOutcomeUI(outcomeAElement, outcomes[0]);
-        initOutcomeUI(outcomeBElement, outcomes[1]);
+        dualOutcomesElement.style.setProperty('--outcome-a-color', predictionSettings.outcomes[0].color);
+        dualOutcomesElement.style.setProperty('--outcome-b-color', predictionSettings.outcomes[1].color);
+        initOutcomeUI(outcomeAElement, predictionSettings.outcomes[0]);
+        initOutcomeUI(outcomeBElement, predictionSettings.outcomes[1]);
 
         let predictionElement = dualOutcomesElement.querySelector('[name="prediction"]');
-        setValueIfDifferent(predictionElement, userPredictionRatios[0]);
+        setValueIfDifferent(predictionElement, userSettings.predictionRatios[0]);
         updatePredictionSliderCSS(predictionElement);
     }
 
-    setValueIfDifferent(rootElement.querySelector('[name="seconds-before-deadline"]'), userSecondsBeforeDeadline);
-    setValueIfDifferent(rootElement.querySelector('[name="point-limit"]'), userPointLimit);
-    rootElement.querySelector('[name="enable"]').value = userEnabled;
+    setValueIfDifferent(rootElement.querySelector('[name="seconds-before-deadline"]'), userSettings.secondsBeforeDeadline);
+    setValueIfDifferent(rootElement.querySelector('[name="point-limit"]'), userSettings.pointLimit);
+    rootElement.querySelector('[name="enable"]').value = userSettings.enabled;
 
-    rootElement.querySelector('.points-predicted').textContent = `${predictedPoints}`;
-    rootElement.querySelector('.point-limit').textContent = `${userPointLimit}`;
+    rootElement.querySelector('.points-predicted').textContent = `${submission?.points}`;
+    rootElement.querySelector('.point-limit').textContent = `${userSettings.pointLimit}`;
 }
 
 // setValueIfDifferent prevents moving the user's text cursor unnecessarily.
