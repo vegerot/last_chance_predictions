@@ -43,9 +43,11 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     const client_integrity = args[0].requestHeaders.find((h) =>
       h.name.toLowerCase() === "client-integrity"
     );
-    client_state.client_id ??= client_id;
-    client_state.session_id ??= session_id;
-    client_state.client_integrity ??= client_integrity;
+    if (typeof client_id === "string") client_state.client_id = client_id;
+    if (typeof session_id === "string") client_state.session_id = session_id;
+    if (typeof client_integrity === "string") {
+      client_state.client_integrity = client_integrity;
+    }
   },
   { urls: ["https://*.twitch.tv/*"] },
   ["requestHeaders"],
