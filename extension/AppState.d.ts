@@ -1,4 +1,7 @@
 interface AppState {
+  userSettings: {
+    selectedChannelID: string | null;
+  };
   channels: ChannelState[];
 }
 

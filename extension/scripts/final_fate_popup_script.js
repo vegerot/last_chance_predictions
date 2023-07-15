@@ -7,7 +7,13 @@ function updatePredictionSliderCSS(element) {
     element.style.setProperty('--value', `${element.value}%`)
 }
 
-let selectedChannelID = null;
+let currentAppState = {
+  userSettings: {
+    selectedChannelID: null,
+  },
+  channels: [],
+};
+let uiDisplayedChannelID = null;
 
 function initUI() {
   stopPredictionTimer();
@@ -28,7 +34,25 @@ function initUI() {
 }
 
 function userSettingsUpdated() {
+  currentAppState.userSettings.selectedChannelID = document.querySelector('#prediction [name="current-channel"]').value;
+  if (currentAppState.userSettings.selectedChannelID !== null) {
+    let rootElement = document.querySelector('#prediction');
+    let dualOutcomesElement = rootElement.querySelector('.dual-prediction');
+    let predictionElement = dualOutcomesElement.querySelector('[name="prediction"]');
+
+    let selectedChannel = currentAppState.channels.find(c => c.channelID === currentAppState.userSettings.selectedChannelID)
+    selectedChannel.userSettings = {
+      predictionRatios: [predictionElement.value, 100 - predictionElement.value],
+      pointLimit: rootElement.querySelector('[name="point-limit"]').value,
+      secondsBeforeDeadline: rootElement.querySelector('[name="seconds-before-deadline"]').value,
+      enabled: rootElement.querySelector('[name="enable"]').checked,
+    };
+  }
+
   updateUIFromUserInput();
+  if (uiDisplayedChannelID !== currentAppState.userSettings.selectedChannelID) {
+    currentChannelStateUpdated();
+  }
   sendUserSettingsToServiceWorker();
 }
 
@@ -44,39 +68,69 @@ function updateUIFromUserInput() {
 
 function sendUserSettingsToServiceWorker() {
   console.log('popup: sending updated user settings');
-  let rootElement = document.querySelector('#prediction');
-  let dualOutcomesElement = rootElement.querySelector('.dual-prediction');
-  let predictionElement = dualOutcomesElement.querySelector('[name="prediction"]');
-
-  let userSettings = {
-    predictionRatios: [predictionElement.value, 100 - predictionElement.value],
-    pointLimit: rootElement.querySelector('[name="point-limit"]').value,
-    secondsBeforeDeadline: rootElement.querySelector('[name="seconds-before-deadline"]').value,
-    enabled: rootElement.querySelector('[name="enable"]').checked,
-  };
-  browser.runtime.sendMessage({
+  let selectedChannel = currentAppState.channels.find(c => c.channelID === currentAppState.userSettings.selectedChannelID)
+  chrome.runtime.sendMessage({
     method: 'popup/userStateChanged',
-    channelID: selectedChannelID,
-    userSettings: userSettings,
+    channelID: currentAppState.userSettings.selectedChannelID,
+    userSettings: selectedChannel?.userSettings,
   });
 }
 
-function appStateUpdated(appState) {
-  if (selectedChannelID === null) {
-    if (appState.channels.length > 0) {
-      selectedChannelID = appState.channels[0].channelID;
-    }
-  }
-  channelStateUpdated(appState.channels[0]);
+function appStateUpdated() {
+  channelListUpdated();
+  console.log(`popup: selected channel ID ${currentAppState.userSettings.selectedChannelID}`);
+  currentChannelStateUpdated();
 }
 
-function channelStateUpdated({
-  predictionSettings,
-  userSettings,
-  submission,
-}) {
+function channelListUpdated() {
+  let channels = currentAppState.channels;
+  let channelIDs = channels.map(c => c.channelID);
+
+  let channelsElement = document.querySelector('#prediction [name="current-channel"]');
+  let channelIDsInUI = [];
+  let optionElementsToRemove = [];
+  for (let optionElement of channelsElement.querySelectorAll('option')) {
+    if (!channelIDs.includes(optionElement.value)) {
+      optionElementsToRemove.push(optionElement);
+    } else {
+      channelIDsInUI.push(optionElement.value);
+    }
+  }
+  for (let optionElement of optionElementsToRemove) {
+    optionElement.remove();
+  }
+
+  let channelsToAdd = channels.filter(c => !channelIDsInUI.includes(c.channelID))
+  for (let channel of channelsToAdd) {
+    let optionElement = document.createElement('option');
+    optionElement.value = channel.channelID;
+    optionElement.textContent = channel.channelDisplayName;
+    channelsElement.appendChild(optionElement);
+  }
+
+  if (!channelIDs.includes(currentAppState.userSettings.selectedChannelID)) {
+    if (channelIDs.length === 0) {
+      currentAppState.userSettings.selectedChannelID = null;
+    } else {
+      currentAppState.userSettings.selectedChannelID = channelIDs[0];
+    }
+    channelsElement.value = currentAppState.userSettings.selectedChannelID;
+  }
+}
+
+function currentChannelStateUpdated() {
+    uiDisplayedChannelID = currentAppState.userSettings.selectedChannelID;
+    if (currentAppState.userSettings.selectedChannelID === null) {
+      // TODO
+      return;
+    }
+    let selectedChannel = currentAppState.channels.find(c => c.channelID === currentAppState.userSettings.selectedChannelID)
+    let { predictionSettings, userSettings, submission } = selectedChannel;
+
     console.assert(userSettings.predictionRatios.reduce((a, b) => a+b, 0) === 100, `prediction ratios should add up to 100: ${userSettings.predictionRatios}`);
-    console.assert(userSettings.predictionRatios.length === predictionSettings.outcomes.length, 'number of outcomes must equal number of prediction ratios');
+    if (predictionSettings.outcomes !== null) {
+      console.assert(userSettings.predictionRatios.length === predictionSettings.outcomes.length, 'number of outcomes must equal number of prediction ratios');
+    }
 
     startPredictionTimer(predictionSettings.deadlineTimeMS);
 
@@ -88,7 +142,7 @@ function channelStateUpdated({
     rootElement.classList.toggle('no-submitted', submission === null);
 
     rootElement.querySelector('.title').textContent = predictionSettings.title;
-    if (predictionSettings.outcomes.length === 2) {
+    if (predictionSettings.outcomes?.length === 2) {
         let dualOutcomesElement = rootElement.querySelector('.dual-prediction');
         let outcomeAElement = dualOutcomesElement.querySelector('.outcome-a');
         let outcomeBElement = dualOutcomesElement.querySelector('.outcome-b');
@@ -151,7 +205,8 @@ browser.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     switch (msg.method) {
     case 'sw/appStateUpdated':
         console.log('popup: got updated app state:', msg.appState);
-        appStateUpdated(msg.appState);
+        currentAppState = msg.appState;
+        appStateUpdated();
         break;
     }
 });
@@ -161,7 +216,8 @@ async function requestDataFromServiceWorkerAsync() {
     method: 'popup/getAppState',
   });
   console.log('popup: got initial app state:', appState);
-  appStateUpdated(appState);
+  currentAppState = appState;
+  appStateUpdated();
 }
 
 initUI();

@@ -6,6 +6,9 @@ console.assert(typeof browser.webRequest !== undefined); // can access most chro
 
 let deadline = Date.now() + 2 * 60 * 1000;
 let currentAppState = {
+  userSettings: {
+    selectedChannelID: "1234",
+  },
   channels: [
     {
       channelID: "1234",
@@ -30,10 +33,47 @@ let currentAppState = {
         points: 42,
       },
     },
+
+    {
+      channelID: "5678",
+      channelLoginName: "emceemc2",
+      channelDisplayName: "emceeMC2",
+      predictionSettings: {
+        status: 'none',
+        title: null,
+        deadlineTimeMS: null,
+        outcomes: null,
+      },
+      userSettings: getDefaultUserSettings(),
+      submission: null,
+    },
+
+    {
+      channelID: "666",
+      channelLoginName: "oatsngoats",
+      channelDisplayName: "Oatsngoats",
+      predictionSettings: {
+        status: 'none',
+        title: null,
+        deadlineTimeMS: null,
+        outcomes: null,
+      },
+      userSettings: getDefaultUserSettings(),
+      submission: null,
+    },
   ],
 };
 
-browser.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+function getDefaultUserSettings() {
+  return {
+    predictionRatios: [50, 50],
+    pointLimit: 300,
+    enabled: false,
+    secondsBeforeDeadline: 3,
+  };
+}
+
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     switch (msg.method) {
     case 'popup/getAppState': {
         console.log('service worker: got popup/getAppState request');
