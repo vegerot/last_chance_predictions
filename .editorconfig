@@ -3,7 +3,7 @@
 
 root = true
 
-[*.{html,js,json,jsonc,md,mjs}]
+[*.{html,js,json,jsonc,md,mjs,ts}]
 charset = utf-8
 end_of_line = lf
 insert_final_newline = true
@@ -13,7 +13,7 @@ end_of_line = lf
 insert_final_newline = true
 
 # Keep in sync with deno fmt.
-[*.{html,js,json,jsonc,mjs}]
+[*.{html,js,json,jsonc,mjs,ts}]
 indent_size = 2
 indent_style = space
 max_line_length = 80
