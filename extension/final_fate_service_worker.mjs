@@ -7,7 +7,7 @@ console.assert(typeof browser.webRequest !== undefined); // can access most chro
 let deadline = Date.now() + 2 * 60 * 1000;
 let currentAppState = {
   userSettings: {
-    selectedChannelID: "1234",
+    selectedChannelID: null,
   },
   channels: {},
 };
