@@ -1,5 +1,9 @@
 import { assertEquals } from "https://deno.land/std@0.173.0/testing/asserts.ts";
-import { calculateBet, calculateOptimalBet, expectedValues } from "./betting.ts";
+import {
+  calculateBet,
+  calculateOptimalBet,
+  expectedValues,
+} from "./betting.ts";
 
 Deno.test("hi", () => {
   assertEquals(

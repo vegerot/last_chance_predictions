@@ -137,7 +137,6 @@ function calculateOptimalBetSlow(
   return { side: bestSide!, points: bestBet };
 }
 
-
 export function expectedValues(
   { odds, pointsPerSide }: {
     odds: [number, number];

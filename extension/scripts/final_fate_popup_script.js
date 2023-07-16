@@ -300,7 +300,8 @@ browser.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       console.log("popup: got updated app state:", msg.appState);
       // HACK: UI currently doesn't send selectedChannelID to service worker, so
       // service worker is always out of date.
-      msg.appState.userSettings.selectedChannelID = currentAppState.userSettings.selectedChannelID;
+      msg.appState.userSettings.selectedChannelID =
+        currentAppState.userSettings.selectedChannelID;
       currentAppState = msg.appState;
       appStateUpdated();
       break;
