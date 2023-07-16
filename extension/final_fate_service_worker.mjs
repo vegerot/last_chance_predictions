@@ -170,7 +170,10 @@ async function loadPredictionsFromServerAsync() {
         };
       }
       let channelState = currentAppState.channels[channelID];
-      if (prediction !== null && channelState.predictionSettings.predictionID !== prediction.predictionID) {
+      if (
+        prediction !== null &&
+        channelState.predictionSettings.predictionID !== prediction.predictionID
+      ) {
         // There is a new prediction. The user should not automatically vote in
         // this prediction; the user should opt in.
         channelState.userSettings.enabled = false;

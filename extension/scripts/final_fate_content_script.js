@@ -7,11 +7,11 @@ console.assert(browser.webRequest === undefined); // cannot access most chrome A
 
 async function sendOnNavigationMessageToSW() {
   let channelLoginName = location.pathname.split("/")[1];
-  if (channelLoginName === '') {
+  if (channelLoginName === "") {
     // Ignore the home page (https://www.twitch.tv/).
     return;
   }
-  if (channelLoginName === 'popout') {
+  if (channelLoginName === "popout") {
     // TODO(#5)
     // For now, ignore popout chat.
     return;

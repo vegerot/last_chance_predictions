@@ -156,7 +156,10 @@ function channelListUpdated() {
 
 function currentChannelStateUpdated() {
   let rootElement = document.querySelector("#prediction");
-  rootElement.classList.toggle("have-channels", Object.getOwnPropertyNames(currentAppState.channels).length > 0);
+  rootElement.classList.toggle(
+    "have-channels",
+    Object.getOwnPropertyNames(currentAppState.channels).length > 0,
+  );
 
   uiDisplayedChannelID = currentAppState.userSettings.selectedChannelID;
   if (currentAppState.userSettings.selectedChannelID === null) {
@@ -245,11 +248,11 @@ function currentChannelStateUpdated() {
 }
 
 function getOutcomeCSSColor(color) {
-  if (color === 'PINK') {
-    return 'rgb(245, 0, 155)';
+  if (color === "PINK") {
+    return "rgb(245, 0, 155)";
   }
-  if (color === 'BLUE') {
-    return 'rgb(56, 122, 255)';
+  if (color === "BLUE") {
+    return "rgb(56, 122, 255)";
   }
   return color;
 }
