@@ -1,129 +1,179 @@
 <!doctype html>
 <style>
-.status-active .if:not(.if-active),
-.status-locked .if:not(.if-locked),
-.status-none .if:not(.if-none) {
+  .status-active .if:not(.if-active),
+  .status-locked .if:not(.if-locked),
+  .status-none .if:not(.if-none) {
     display: none !important;
-}
+  }
 
-body {
+  body {
     background-color: #000;
     color: #fff;
     width: 300px;
-}
+  }
 
-/* Prevent text selection messing up slider dragging. */
-body {
+  /* Prevent text selection messing up slider dragging. */
+  body {
     user-select: none;
-}
+  }
 
-.dual-prediction {
+  .dual-prediction {
     display: grid;
     grid-template-areas:
-        "outcome-a outcome-b"
-        "prediction prediction";
-}
-.dual-prediction .outcome-a {
+      "outcome-a outcome-b"
+      "prediction prediction";
+  }
+  .dual-prediction .outcome-a {
     grid-area: outcome-a;
-}
-.dual-prediction .outcome-b {
+  }
+  .dual-prediction .outcome-b {
     grid-area: outcome-b;
-}
-.dual-prediction [name="prediction"] {
+  }
+  .dual-prediction [name="prediction"] {
     grid-area: prediction;
-}
+  }
 
-.dual-prediction .outcome-a {
+  .dual-prediction .outcome-a {
     text-align: left;
-}
-.dual-prediction .outcome-b {
+  }
+  .dual-prediction .outcome-b {
     text-align: right;
-}
+  }
 
-.dual-prediction .outcome-a {
+  .dual-prediction .outcome-a {
     --outcome-color: var(--outcome-a-color);
-}
-.dual-prediction .outcome-b {
+  }
+  .dual-prediction .outcome-b {
     --outcome-color: var(--outcome-b-color);
-}
+  }
 
-.outcome .name,
-.outcome .estimate {
+  .outcome .name,
+  .outcome .estimate {
     color: var(--outcome-color);
-}
+  }
 
-.dual-prediction [name="prediction"] {
+  .dual-prediction [name="prediction"] {
     width: 100%;
-}
+  }
 
-/* Customize styling of sliders: make the left track --left-color and right
+  /* Customize styling of sliders: make the left track --left-color and right
    track --left-color. */
-input[type="range"] {
+  input[type="range"] {
     accent-color: #ddd; /* Color of the thumb. */
-    --value: 0%;  /* Updated in JavaScript. */
+    --value: 0%; /* Updated in JavaScript. */
 
     appearance: none;
-    background: linear-gradient(to right, var(--left-color) var(--value), var(--right-color) var(--value));
+    background: linear-gradient(
+      to right,
+      var(--left-color) var(--value),
+      var(--right-color) var(--value)
+    );
     border-radius: 15px;
     height: 6px;
-}
+  }
 
-.dual-prediction [name="prediction"] {
+  .dual-prediction [name="prediction"] {
     --left-color: var(--outcome-a-color);
     --right-color: var(--outcome-b-color);
-}
+  }
 
-input[name="seconds-before-deadline"] {
+  input[name="seconds-before-deadline"] {
     /* Max input is 1800 (4 characters). */
     width: 4em;
-}
+  }
 
-input[name="point-limit"] {
+  input[name="point-limit"] {
     /* Max input is 250000 (6 characters). */
     width: 6em;
-}
+  }
 
-.status-locked.no-submitted .submitted-container,
-.status-locked.submitted .no-submitted-container,
-.status-active .no-submitted-container,
-.status-active .submitted-container,
-.status-none .no-submitted-container,
-.status-none .submitted-container {
+  .status-locked.no-submitted .submitted-container,
+  .status-locked.submitted .no-submitted-container,
+  .status-active .no-submitted-container,
+  .status-active .submitted-container,
+  .status-none .no-submitted-container,
+  .status-none .submitted-container {
     display: none !important;
-}
+  }
 </style>
 
 <div id="prediction" class="status-none">
-  <p><label>Channel: <select name="current-channel"></select></label></p>
-    <p class="if if-none">No prediction is active right now</p>
+  <p>
+    <label
+      >Channel:
+      <select name="current-channel"></select
+    ></label>
+  </p>
+  <p class="if if-none">No prediction is active right now</p>
 
-    <h1 class="title if if-active if-locked">(prediction title)</h1>
-    <p class="if if-active">Predictions ends in <span class="prediction-countdown">(time)</span>
-    <p class="if if-locked">Predictions are closed</p>
+  <h1 class="title if if-active if-locked">(prediction title)</h1>
+  <p class="if if-active">
+    Predictions ends in <span class="prediction-countdown">(time)</span>
+  </p>
+  <p class="if if-locked">Predictions are closed</p>
 
-    <div class="dual-prediction if if-active if-locked" style="--outcome-a-color: #f74379; --outcome-b-color: #3153cd;">
-        <div class="outcome outcome-a">
-            <h2 class="name">(outcome A)</h2>
-            <p><output class="estimate">...%</output></p>
-        </div>
-        <div class="outcome outcome-b">
-            <h2 class="name">(outcome B)</h2>
-            <p><output class="estimate">...%</output></p>
-        </div>
-        <input type="range" name="prediction" class="prediction-slider if if-active" min="0" max="100" step="1">
+  <div
+    class="dual-prediction if if-active if-locked"
+    style="--outcome-a-color: #f74379; --outcome-b-color: #3153cd"
+  >
+    <div class="outcome outcome-a">
+      <h2 class="name">(outcome A)</h2>
+      <p><output class="estimate">...%</output></p>
     </div>
-
-    <div class="multi-prediction if if-active if-locked">
-        <!-- TODO -->
+    <div class="outcome outcome-b">
+      <h2 class="name">(outcome B)</h2>
+      <p><output class="estimate">...%</output></p>
     </div>
+    <input
+      type="range"
+      name="prediction"
+      class="prediction-slider if if-active"
+      min="0"
+      max="100"
+      step="1"
+    />
+  </div>
 
-    <p class="if if-active">Submit my prediction <input type="number" name="seconds-before-deadline" min="1" max="1800" step="0.5" value="2">&nbsp;seconds before the deadline</p>
+  <div class="multi-prediction if if-active if-locked">
+    <!-- TODO -->
+  </div>
 
-    <p class="if if-active">Predict with at most <input type="number" name="point-limit" min="1" max="250000" step="100" value="300">&nbsp;channel points</p>
+  <p class="if if-active">
+    Submit my prediction
+    <input
+      type="number"
+      name="seconds-before-deadline"
+      min="1"
+      max="1800"
+      step="0.5"
+      value="2"
+    />&nbsp;seconds before the deadline
+  </p>
 
-    <p class="if if-active"><label><input type="checkbox" name="enable">&nbsp;Predict my points</label></p>
+  <p class="if if-active">
+    Predict with at most
+    <input
+      type="number"
+      name="point-limit"
+      min="1"
+      max="250000"
+      step="100"
+      value="300"
+    />&nbsp;channel points
+  </p>
 
-    <p class="submitted-container">You predicted <span class="points-predicted">(points)</span> points (limit was <span class="point-limit">(points)</span>).</p>
-    <p class="no-submitted-container">You did not predict any points for this prediction.</p>
+  <p class="if if-active">
+    <label
+      ><input type="checkbox" name="enable" />&nbsp;Predict my points</label
+    >
+  </p>
+
+  <p class="submitted-container">
+    You predicted <span class="points-predicted">(points)</span> points (limit
+    was <span class="point-limit">(points)</span>).
+  </p>
+  <p class="no-submitted-container">
+    You did not predict any points for this prediction.
+  </p>
 </div>
 <script src="scripts/final_fate_popup_script.js"></script>
