@@ -83,25 +83,23 @@ export async function getActiveChannelPredictionAndChannelID(
 //   deadlineTimeMS: number | null,
 // }
 function resultToPredictionSettings(result) {
-  let { activePredictionEvents } = result[0].data.community.channel;
-  console.log({ activePredictionEvents });
-  console.assert(activePredictionEvents.length <= 1);
-  let predictionSettings = activePredictionEvents.map((prediction) => {
+  let { activePredictionEvents, lockedPredictionEvents } = result[0].data.community.channel;
+  let predictionEvents = [...activePredictionEvents, ...lockedPredictionEvents];
+  console.assert(predictionEvents.length <= 1);
+  let predictionSettings = predictionEvents.map((prediction) => {
     let { id, title, status, outcomes, createdAt, predictionWindowSeconds } =
       prediction;
     let deadlineTimeMS = new Date(createdAt).getTime() +
       predictionWindowSeconds * 1000;
     let predictionSettings = {
       status: status.toLowerCase(),
-      outcomes: status === "ACTIVE"
-        ? outcomes.map((outcome) => ({
+      outcomes: outcomes.map((outcome) => ({
           color: outcome.color,
           iconURI: outcome.badge.image4x,
           name: outcome.title,
-        }))
-        : null,
-      title: status === "ACTIVE" ? title : null,
-      deadlineTimeMS: status === "ACTIVE" ? deadlineTimeMS : null,
+        })),
+      title: title,
+      deadlineTimeMS: deadlineTimeMS,
     };
     return predictionSettings;
   });
