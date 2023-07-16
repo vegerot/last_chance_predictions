@@ -54,9 +54,12 @@ function userSettingsUpdated() {
         Number(predictionElement.value),
         100 - predictionElement.value,
       ],
-      pointLimit: rootElement.querySelector('[name="point-limit"]').value,
-      secondsBeforeDeadline:
+      pointLimit: Number(
+        rootElement.querySelector('[name="point-limit"]').value,
+      ),
+      secondsBeforeDeadline: Number(
         rootElement.querySelector('[name="seconds-before-deadline"]').value,
+      ),
       enabled: rootElement.querySelector('[name="enable"]').checked,
     };
   }
