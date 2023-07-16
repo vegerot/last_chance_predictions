@@ -105,6 +105,9 @@ function resultToPredictionSettings(result) {
     };
     return predictionSettings;
   });
+  if (predictionSettings.length === 0) {
+    return null;
+  }
   return predictionSettings[0];
 }
 
