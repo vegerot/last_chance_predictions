@@ -5,12 +5,24 @@ let root = document.getElementById("root");
 console.assert(root); // can access host document
 console.assert(browser.webRequest === undefined); // cannot access most chrome APIs in content scripts
 
-async function sendMessageToSW() {
-  const { msgFromSW } = await browser.runtime.sendMessage({
-    yourMom: "heyFromTwitch.tv",
+async function sendOnNavigationMessageToSW() {
+  const { ok } = await browser.runtime.sendMessage({
+    method: "content/onNavigation",
+    channelLoginName: location.pathname.split("/")[1], // TODO(#5): figure out if we're in a popout script or not
   });
   console.log(msgFromSW);
   console.assert(msgFromSW === "hi from SW");
 }
 
-sendMessageToSW();
+sendOnNavigationMessageToSW();
+
+// TODO: does this fire when the page is first loaded?  If so, then we don't
+// need to send the above message too
+navigation.addEventListener("navigationsuccess", (event) => {
+  console.log("navigation success", event);
+  sendOnNavigationMessageToSW();
+});
+
+window.onbeforeunload = () => {
+  // TODO: rem,ove tab from `currentTabs` when tab closed
+};

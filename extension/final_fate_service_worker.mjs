@@ -64,6 +64,11 @@ let currentAppState = {
   },
 };
 
+/**
+ * @type {TabChannels}
+ */
+let tabChannels = {};
+
 function getDefaultUserSettings() {
   return {
     predictionRatios: [50, 50],
@@ -89,6 +94,17 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       let channelState = currentAppState.channels[msg.channelID];
       channelState.userSettings = msg.userSettings;
       //appStateUpdated();  // Don't bother. UI already knows.
+      break;
+    }
+    case "content/onNavigation": {
+      console.log("service worker: got content/onNavigation request");
+      let tabId = sender.tab.id;
+      console.assert(typeof tabId === "number");
+      let channelLoginName = msg.channelLoginName;
+      console.log({ channelLoginName });
+      console.assert(typeof channelLoginName === "string");
+      tabChannels[tabId] = channelLoginName;
+      console.log(tabChannels);
       break;
     }
     default:

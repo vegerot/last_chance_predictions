@@ -32,3 +32,8 @@ interface ChannelState {
     // TODO(strager): outcomeIndex
   };
 }
+
+type TabID = number;
+/** ex. strager_sr */
+type ChannelLoginName = string;
+type TabChannels = Record<TabID, ChannelLoginName>;
