@@ -1,8 +1,12 @@
 <!doctype html>
 <style>
-  .status-active .if:not(.if-active),
+  .status-active .if:not(.if-active):not(.if-active-and-not-submitted),
   .status-locked .if:not(.if-locked),
   .status-none .if:not(.if-none) {
+    display: none !important;
+  }
+
+  .submitted .if.if-active-and-not-submitted {
     display: none !important;
   }
 
@@ -100,8 +104,8 @@
 
   .status-locked.no-submitted .submitted-container,
   .status-locked.submitted .no-submitted-container,
+  .status-active.no-submitted .submitted-container,
   .status-active .no-submitted-container,
-  .status-active .submitted-container,
   .status-none .no-submitted-container,
   .status-none .submitted-container {
     display: none !important;
@@ -140,7 +144,7 @@
     <input
       type="range"
       name="prediction"
-      class="prediction-slider if if-active"
+      class="prediction-slider if if-active-and-not-submitted"
       min="0"
       max="100"
       step="1"
@@ -152,7 +156,7 @@
     <p style="font-weight: bold;">Predictions with three or more outcomes are not currently supported</p>
   </div>
 
-  <p class="if if-active">
+  <p class="if if-active-and-not-submitted">
     Submit my prediction
     <input
       type="number"
@@ -164,7 +168,7 @@
     />&nbsp;seconds before the deadline
   </p>
 
-  <p class="if if-active">
+  <p class="if if-active-and-not-submitted">
     Predict with at most
     <input
       type="number"
@@ -176,7 +180,7 @@
     />&nbsp;channel points
   </p>
 
-  <p class="if if-active">
+  <p class="if if-active-and-not-submitted">
     <label
       ><input type="checkbox" name="enable" />&nbsp;Predict my points</label
     >
