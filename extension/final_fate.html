@@ -77,6 +77,11 @@
     --right-color: var(--outcome-b-color);
   }
 
+  #prediction:not(.is-dual-prediction) .dual-prediction,
+  #prediction.is-dual-prediction .multi-prediction {
+    display: none;
+  }
+
   input[name="seconds-before-deadline"] {
     /* Max input is 1800 (4 characters). */
     width: 4em;
@@ -136,6 +141,7 @@
 
   <div class="multi-prediction if if-active if-locked">
     <!-- TODO -->
+    <p style="font-weight: bold;">Predictions with three or more outcomes are not currently supported</p>
   </div>
 
   <p class="if if-active">

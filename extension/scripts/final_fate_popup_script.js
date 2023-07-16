@@ -195,7 +195,10 @@ function currentChannelStateUpdated() {
   rootElement.classList.toggle("no-submitted", submission === null);
 
   rootElement.querySelector(".title").textContent = predictionSettings.title;
-  if (predictionSettings.outcomes?.length === 2) {
+  let isDualOutcome = predictionSettings.outcomes?.length === 2;
+  rootElement.classList.toggle("is-dual-outcome", isDualOutcome);
+
+  if (isDualOutcome) {
     let dualOutcomesElement = rootElement.querySelector(".dual-prediction");
     let outcomeAElement = dualOutcomesElement.querySelector(".outcome-a");
     let outcomeBElement = dualOutcomesElement.querySelector(".outcome-b");
