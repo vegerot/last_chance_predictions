@@ -1,7 +1,7 @@
 const browser = chrome;
 import { getActiveChannelPredictionAndChannelID } from "./get-active-predictions.mjs";
 import { predictAsync } from "./make-prediction.mjs";
-console.log("final_fate_service_worker.js loaded");
+console.log("service_worker.js loaded");
 console.assert(typeof document === "undefined"); // cannot access host document in service worker
 console.assert(typeof browser.webRequest !== undefined); // can access most chrome APIs in service workers
 
