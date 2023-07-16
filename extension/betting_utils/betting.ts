@@ -1,3 +1,9 @@
+// NOTE: the betting.ts module is not directly used by the extension and must first be
+// compiled to betting.mjs with
+// ```sh
+// $ deno bundle betting.ts > betting.mjs
+// ```
+
 export function calculateBet(
   userOdds: { odds: [number, number]; maxBet: number },
   chatOdds: { pointsPerSide: [number, number] },
@@ -93,7 +99,7 @@ export function calculateOptimalBet(
 }
 
 // TODO: test against calculateOptimalBet
-function calculateOptimalBetSlow(
+function _calculateOptimalBetSlow(
   userOdds: { odds: [number, number]; maxBet: number },
   chatOdds: { pointsPerSide: [number, number] },
 ): { side: number; points: number } | null {
