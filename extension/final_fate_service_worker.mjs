@@ -29,6 +29,7 @@ function getDefaultUserSettings() {
 function getNonePrediction() {
   return {
     status: "none",
+    predictionID: null,
     title: null,
     deadlineTimeMS: null,
     outcomes: null,
@@ -168,8 +169,13 @@ async function loadPredictionsFromServerAsync() {
           submission: null,
         };
       }
-      currentAppState.channels[channelID].predictionSettings = prediction ??
-        getNonePrediction();
+      let channelState = currentAppState.channels[channelID];
+      if (prediction !== null && channelState.predictionSettings.predictionID !== prediction.predictionID) {
+        // There is a new prediction. The user should not automatically vote in
+        // this prediction; the user should opt in.
+        channelState.userSettings.enabled = false;
+      }
+      channelState.predictionSettings = prediction ?? getNonePrediction();
     }),
   );
   // TODO(strager): Delete old entries from currentAppState.channels.

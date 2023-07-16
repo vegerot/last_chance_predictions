@@ -15,6 +15,8 @@ interface ChannelState {
   predictionSettings: {
     status: "active" | "locked" | "none";
     // non-null if .status !== 'none':
+    predictionID: string | null,
+    // non-null if .status !== 'none':
     outcomes: { color: string; iconURI: string; name: string }[] | null;
     // non-null if .status !== 'none':
     title: string | null;

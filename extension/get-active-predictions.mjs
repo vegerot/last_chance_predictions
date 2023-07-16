@@ -94,6 +94,7 @@ function resultToPredictionSettings(result) {
       predictionWindowSeconds * 1000;
     let predictionSettings = {
       status: status.toLowerCase(),
+      predictionID: id,
       outcomes: outcomes.map((outcome) => ({
         color: outcome.color,
         iconURI: outcome.badge.image4x,
