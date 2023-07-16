@@ -46,8 +46,8 @@ Google Chrome, Brave, and Microsoft Edge.
 
 ## Known issues
 
-* Predictions with more than two outcomes are not supported.
-* You must refresh your Twitch tab after installing the extension.
+- Predictions with more than two outcomes are not supported.
+- You must refresh your Twitch tab after installing the extension.
 
 ## Fixing common issues
 
