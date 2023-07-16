@@ -83,7 +83,8 @@ export async function getActiveChannelPredictionAndChannelID(
 //   deadlineTimeMS: number | null,
 // }
 function resultToPredictionSettings(result) {
-  let { activePredictionEvents, lockedPredictionEvents } = result[0].data.community.channel;
+  let { activePredictionEvents, lockedPredictionEvents } =
+    result[0].data.community.channel;
   let predictionEvents = [...activePredictionEvents, ...lockedPredictionEvents];
   console.assert(predictionEvents.length <= 1);
   let predictionSettings = predictionEvents.map((prediction) => {
@@ -94,10 +95,10 @@ function resultToPredictionSettings(result) {
     let predictionSettings = {
       status: status.toLowerCase(),
       outcomes: outcomes.map((outcome) => ({
-          color: outcome.color,
-          iconURI: outcome.badge.image4x,
-          name: outcome.title,
-        })),
+        color: outcome.color,
+        iconURI: outcome.badge.image4x,
+        name: outcome.title,
+      })),
       title: title,
       deadlineTimeMS: deadlineTimeMS,
     };
