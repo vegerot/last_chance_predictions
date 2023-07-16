@@ -17,7 +17,12 @@ interface ChannelState {
     // non-null if .status !== 'none':
     predictionID: string | null;
     // non-null if .status !== 'none':
-    outcomes: { color: string; iconURI: string; name: string }[] | null;
+    outcomes: {
+      outcomeID: string;
+      color: string;
+      iconURI: string;
+      name: string
+    }[] | null;
     // non-null if .status !== 'none':
     title: string | null;
     // non-null if .status === 'active'
@@ -31,7 +36,7 @@ interface ChannelState {
   };
   submission: null | {
     points: number;
-    // TODO(strager): outcomeIndex
+    outcomeIndex: number;
   };
 }
 

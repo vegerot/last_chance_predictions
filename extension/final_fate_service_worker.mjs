@@ -1,5 +1,6 @@
 const browser = chrome;
 import { getActiveChannelPredictionAndChannelID } from "./get-active-predictions.mjs";
+import { predictAsync } from "./make-prediction.mjs";
 console.log("final_fate_service_worker.js loaded");
 console.assert(typeof document === "undefined"); // cannot access host document in service worker
 console.assert(typeof browser.webRequest !== undefined); // can access most chrome APIs in service workers
@@ -207,18 +208,38 @@ function handleTimerForPrediction(channelLoginName, channelID) {
   if (channelIdToTimeout[channelLoginName]) {
     clearTimeout(channelIdToTimeout[channelLoginName]);
   }
+  let channelState = currentAppState.channels[channelID];
   let alreadySubmittedPrediction =
-    currentAppState.channels[channelID].submission !== null;
+    channelState.submission !== null;
   let isPredictionActive =
-    currentAppState.channels[channelID].predictionSettings.status === "active";
+    channelState.predictionSettings.status === "active";
   if (isPredictionActive && !alreadySubmittedPrediction) {
     let timeShouldSubmitPrediction =
-      currentAppState.channels[channelID].predictionSettings.deadlineTimeMS -
-      (currentAppState.userSettings.secondsBeforeDeadline ?? 3) * 1000;
+      channelState.predictionSettings.deadlineTimeMS -
+      channelState.userSettings.secondsBeforeDeadline * 1000;
     let msUntilShouldSubmitPrediction = timeShouldSubmitPrediction - Date.now();
     channelIdToTimeout[channelLoginName] = setTimeout(
-      () => {
-        console.log("PREDICTION ABOUT TO END");
+      async () => {
+        let credentials = getCredentialsForChannelLoginName(channelLoginName);
+        if (credentials === null) {
+          console.warn(`service worker: not prediction because no credentials found for ${channelLoginName}`);
+          return;
+        }
+        let outcomeIndex = 0; // TODO
+        let points = 5; // TODO
+        console.log(`service worker: making ${points} point prediction for outcome index ${outcomeIndex}`);
+        await predictAsync({
+          clientCredentials: credentials,
+          predictionID: channelState.predictionSettings,
+          outcomeID: channelState.outcomes[outcomeIndex].outcomeID,
+          points: points,
+        })
+        // Successfully submitted the prediction. Tell the user.
+        channelState.submission = {
+          points: points,
+          outcomeIndex: outcomeIndex,
+        };
+        appStateUpdated();
       },
       msUntilShouldSubmitPrediction,
     );
@@ -276,8 +297,8 @@ function testDummyPredictions() {
       title: "Collect supers by 15:00?",
       deadlineTimeMS: deadline,
       outcomes: [
-        { color: "pink", iconURI: "", name: "YES" },
-        { color: "blue", iconURI: "", name: "no" },
+        { color: "pink", iconURI: "", name: "YES", outcomeID: "a" },
+        { color: "blue", iconURI: "", name: "no", outcomeID: "b" },
       ],
     },
     userSettings: {

@@ -73,15 +73,6 @@ export async function getActiveChannelPredictionAndChannelID(
   };
 }
 
-// predictionSettings: {
-//   status: 'active' | 'locked' | 'none',
-//   // non-null if .status !== 'none':
-//   outcomes: {color: 'BLUE' | 'PINK', iconURI: string, name: string}[] | null,
-//   // non-null if .status !== 'none':
-//   title: string | null,
-//   // non-null if .status === 'active'
-//   deadlineTimeMS: number | null,
-// }
 function resultToPredictionSettings(result) {
   let { activePredictionEvents, lockedPredictionEvents } =
     result[0].data.community.channel;
@@ -96,6 +87,7 @@ function resultToPredictionSettings(result) {
       status: status.toLowerCase(),
       predictionID: id,
       outcomes: outcomes.map((outcome) => ({
+        outcomeID: outcome.id,
         color: outcome.color,
         iconURI: outcome.badge.image4x,
         name: outcome.title,
