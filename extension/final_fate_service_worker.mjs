@@ -176,12 +176,54 @@ async function loadPredictionsFromServerAsync() {
         channelState.userSettings.enabled = false;
       }
       channelState.predictionSettings = prediction ?? getNonePrediction();
+      handlePredictionsUpdated(channelLoginName, channelID, prediction);
     }),
   );
   // TODO(strager): Delete old entries from currentAppState.channels.
 
   appStateUpdated();
 }
+
+function handlePredictionsUpdated(channelLoginName, channelID, prediction) {
+  if (!Object.hasOwnProperty.call(currentAppState.channels, channelID)) {
+    currentAppState.channels[channelID] = {
+      channelID: channelID,
+      channelLoginName: channelLoginName,
+      channelDisplayName: channelLoginName, // TODO
+      predictionSettings: getNonePrediction(),
+      userSettings: getDefaultUserSettings(),
+      submission: null,
+    };
+  }
+  currentAppState.channels[channelID].predictionSettings = prediction ??
+    getNonePrediction();
+  handleTimerForPrediction(channelLoginName, channelID);
+}
+
+function handleTimerForPrediction(channelLoginName, channelID) {
+  if (channelIdToTimeout[channelLoginName]) {
+    clearTimeout(channelIdToTimeout[channelLoginName]);
+  }
+  let alreadySubmittedPrediction =
+    currentAppState.channels[channelID].submission !== null;
+  let isPredictionActive =
+    currentAppState.channels[channelID].predictionSettings.status === "active";
+  if (isPredictionActive && !alreadySubmittedPrediction) {
+    let timeShouldSubmitPrediction =
+      currentAppState.channels[channelID].predictionSettings.deadlineTimeMS -
+      (currentAppState.userSettings.secondsBeforeDeadline ?? 3) * 1000;
+    let msUntilShouldSubmitPrediction = timeShouldSubmitPrediction - Date.now();
+    channelIdToTimeout[channelLoginName] = setTimeout(
+      () => {
+        console.log("PREDICTION ABOUT TO END");
+      },
+      msUntilShouldSubmitPrediction,
+    );
+  }
+}
+
+/** @type {ChannelIdToTimeout} */
+const channelIdToTimeout = {};
 
 function getWatchedChannelLoginNames() {
   let channelLoginNames = [];
@@ -220,6 +262,7 @@ function testDifferentPredictionSettingsStates() {
     appStateUpdated();
   }, 10000);
 }
+
 function testDummyPredictions() {
   currentAppState.channels["1234"] = {
     channelID: "1234",

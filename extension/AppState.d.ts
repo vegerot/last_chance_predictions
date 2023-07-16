@@ -15,7 +15,7 @@ interface ChannelState {
   predictionSettings: {
     status: "active" | "locked" | "none";
     // non-null if .status !== 'none':
-    predictionID: string | null,
+    predictionID: string | null;
     // non-null if .status !== 'none':
     outcomes: { color: string; iconURI: string; name: string }[] | null;
     // non-null if .status !== 'none':
@@ -39,3 +39,7 @@ type TabID = number;
 /** ex. strager_sr */
 type ChannelLoginName = string;
 type TabChannels = Record<TabID, ChannelLoginName>;
+
+/** returned from `setTimeout`*/
+type TimerID = number;
+type ChannelIdToTimeout = Record<ChannelLoginName, TimerID>;
