@@ -165,7 +165,14 @@ setInterval(
 );
 
 function getWatchedChannelLoginNames() {
-  return ["strager_sr"];
+  let channelLoginNames = [];
+  for (let tabID in tabChannels) {
+    let channelLoginName = tabChannels[tabID];
+    if (channelLoginName !== null) {
+      channelLoginNames.push(channelLoginName);
+    }
+  }
+  return channelLoginNames;
 }
 
 // Returns null if no credentials are available yet.
