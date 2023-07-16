@@ -116,3 +116,14 @@ Deno.test("expected value of 50/50", () => {
     [500, -500],
   );
 });
+
+Deno.test("Should always bet 1 point for side with 0 points", () => {
+  assertEquals(
+    calculateBet(
+      /*userOdds*/ { odds: [50, 50], maxBet: 100 },
+      /*chatOdds*/ { pointsPerSide: [69, 0] },
+    ),
+    { side: 1, points: 1 },
+  );
+  // TODO: should not bet if userOdds has 100% chance on the non-zero side
+});

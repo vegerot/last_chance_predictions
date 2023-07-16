@@ -27,6 +27,13 @@ function calculateOptimalBet(userOdds, chatOdds) {
     function expectedValue2(yourBet, chance, pointsOnMySide, pointsOnTheirSide) {
         return yourBet * (chance * pointsOnTheirSide / (yourBet + pointsOnMySide) - (1 - chance));
     }
+    if (chatOdds.pointsPerSide[0] === 0 !== (chatOdds.pointsPerSide[1] === 0)) {
+        let side = chatOdds.pointsPerSide[0] === 0 ? 0 : 1;
+        return {
+            side,
+            points: 1
+        };
+    }
     let odds = normalizeOdds(userOdds.odds);
     let optimalBetA = hmtbRounded(odds[0], chatOdds.pointsPerSide[0], chatOdds.pointsPerSide[1]);
     let optimalBetB = hmtbRounded(odds[1], chatOdds.pointsPerSide[1], chatOdds.pointsPerSide[0]);

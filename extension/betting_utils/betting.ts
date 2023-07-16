@@ -58,6 +58,14 @@ export function calculateOptimalBet(
     return yourBet *
       (chance * pointsOnTheirSide / (yourBet + pointsOnMySide) - (1 - chance));
   }
+  // always bet one point for side with 0 points
+  if ((chatOdds.pointsPerSide[0] === 0) !== (chatOdds.pointsPerSide[1] === 0)) {
+    let side = chatOdds.pointsPerSide[0] === 0 ? 0 : 1;
+    return {
+      side,
+      points: 1,
+    };
+  }
   let odds = normalizeOdds(userOdds.odds);
   let optimalBetA = hmtbRounded(
     odds[0],
