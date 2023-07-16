@@ -155,6 +155,9 @@ function channelListUpdated() {
 }
 
 function currentChannelStateUpdated() {
+  let rootElement = document.querySelector("#prediction");
+  rootElement.classList.toggle("have-channels", Object.getOwnPropertyNames(currentAppState.channels).length > 0);
+
   uiDisplayedChannelID = currentAppState.userSettings.selectedChannelID;
   if (currentAppState.userSettings.selectedChannelID === null) {
     // TODO
@@ -178,7 +181,6 @@ function currentChannelStateUpdated() {
 
   startPredictionTimer(predictionSettings.deadlineTimeMS);
 
-  let rootElement = document.querySelector("#prediction");
   rootElement.classList.toggle(
     "status-active",
     predictionSettings.status === "active",

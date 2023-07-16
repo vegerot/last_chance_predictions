@@ -82,6 +82,12 @@
     display: none;
   }
 
+  #prediction:not(.have-channels) .channel-selector,
+  #prediction:not(.have-channels) .if.if-none,
+  #prediction.have-channels .no-channels-message {
+    display: none;
+  }
+
   input[name="seconds-before-deadline"] {
     /* Max input is 1800 (4 characters). */
     width: 4em;
@@ -103,13 +109,15 @@
 </style>
 
 <div id="prediction" class="status-none">
-  <p>
+  <p class="channel-selector">
     <label
       >Channel:
       <select name="current-channel"></select
     ></label>
   </p>
   <p class="if if-none">No prediction is active right now</p>
+
+  <p class="no-channels-message">No Twitch tabs were detected. If you just installed the extension, please reload any open Twitch tabs.</p>
 
   <h1 class="title if if-active if-locked">(prediction title)</h1>
   <p class="if if-active">
