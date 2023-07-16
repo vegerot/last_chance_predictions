@@ -49,6 +49,17 @@ Google Chrome, Brave, and Microsoft Edge.
 * Predictions with more than two outcomes are not supported.
 * You must refresh your Twitch tab after installing the extension.
 
+## Fixing common issues
+
+This project is made for a CodeJam. We're still working on ironing out all the
+different edge-cases. Sometimes the plugin state gets confused and needs to be
+reset.
+If the plugin doesn't work the way you'd expect or seems confused, try the following:
+
+1. navigate to about:extensions
+2. click the "Reload" button on the Last Chance Predictions extension
+3. refresh your twitch tab
+
 ## License & copyright
 
 Copyright 2023 Matthew "strager" Glazar, Max Coplan
