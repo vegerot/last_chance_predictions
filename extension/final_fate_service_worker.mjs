@@ -204,7 +204,7 @@ function handlePredictionsUpdated(channelLoginName, channelID, prediction) {
   handleTimerForPrediction(channelLoginName, channelID);
 }
 
-import { calculateBet } from "./betting.mjs";
+import { calculateBet } from "./betting_utils/betting.mjs";
 function handleTimerForPrediction(channelLoginName, channelID) {
   if (channelIdToTimeout[channelLoginName]) {
     clearTimeout(channelIdToTimeout[channelLoginName]);

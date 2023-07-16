@@ -4,7 +4,7 @@
   "description": "stupid name",
   "version": "1.0",
   "action": {
-    "default_popup": "final_fate.html",
+    "default_popup": "popup/final_fate.html",
     "default_icon": "final_fate.png"
   },
   "permissions": [
@@ -25,7 +25,7 @@
         "https://www.twitch.tv/hi"
       ],
       "js": [
-        "scripts/final_fate_content_script.js"
+        "content_scripts/final_fate_content_script.js"
       ]
     }
   ],
