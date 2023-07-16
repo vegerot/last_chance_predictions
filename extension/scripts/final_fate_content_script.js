@@ -6,9 +6,19 @@ console.assert(root); // can access host document
 console.assert(browser.webRequest === undefined); // cannot access most chrome APIs in content scripts
 
 async function sendOnNavigationMessageToSW() {
+  let channelLoginName = location.pathname.split("/")[1];
+  if (channelLoginName === '') {
+    // Ignore the home page (https://www.twitch.tv/).
+    return;
+  }
+  if (channelLoginName === 'popout') {
+    // TODO(#5)
+    // For now, ignore popout chat.
+    return;
+  }
   const { ok } = await browser.runtime.sendMessage({
     method: "content/onNavigation",
-    channelLoginName: location.pathname.split("/")[1], // TODO(#5): figure out if we're in a popout script or not
+    channelLoginName: channelLoginName,
   });
   console.assert(ok === true);
 }
