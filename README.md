@@ -5,8 +5,7 @@ Twitch channel points. Pick your odds and a point limit, and Last Chance
 Predictions will automatically calculate which side to bet and how many points
 to bet and submit your prediction just in time!
 
-![](./docs/closed-prediction.png)
-![](./docs/open-prediction.png)
+![](./docs/open-prediction.png)![](./docs/closed-prediction.png)
 
 Last Chance Predictions is written in JavaScript (with some accidental
 TypeScript).
