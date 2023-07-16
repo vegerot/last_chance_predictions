@@ -10,7 +10,7 @@ async function sendOnNavigationMessageToSW() {
     method: "content/onNavigation",
     channelLoginName: location.pathname.split("/")[1], // TODO(#5): figure out if we're in a popout script or not
   });
-  console.assert(ok === true)
+  console.assert(ok === true);
 }
 
 sendOnNavigationMessageToSW();
