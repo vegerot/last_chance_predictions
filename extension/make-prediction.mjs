@@ -12,7 +12,7 @@ export async function predictAsync({
         "input": {
           "eventID": predictionID,
           "outcomeID": outcomeID,
-          "points": 10,
+          "points": points,
           "transactionID": transactionID,
         }
       },
@@ -30,6 +30,7 @@ export async function predictAsync({
       "accept": "*/*",
       "accept-language": "en-US",
       "authorization": clientCredentials.authorization_header,
+      "client-integrity": clientCredentials.client_integrity,
       "client-id": clientCredentials.client_id,
       "client-session-id": clientCredentials.session_id,
       "client-version": "9de5038a-c44b-49d2-ab46-20b6ad807deb",
@@ -38,9 +39,11 @@ export async function predictAsync({
     "referrer": "https://www.twitch.tv/",
     "body": JSON.stringify(body),
     "method": "POST",
-  }).then((res) => res.json());
+  }).then((res) => res.json())
+  if (result[0].errors?.length > 0) {
+    throw new Error(result[0].errors[0].message);
+  }
 
-  // TODO(strager): check result
 }
 
 /*

@@ -230,8 +230,8 @@ function handleTimerForPrediction(channelLoginName, channelID) {
         console.log(`service worker: making ${points} point prediction for outcome index ${outcomeIndex}`);
         await predictAsync({
           clientCredentials: credentials,
-          predictionID: channelState.predictionSettings,
-          outcomeID: channelState.outcomes[outcomeIndex].outcomeID,
+          predictionID: channelState.predictionSettings.predictionID,
+          outcomeID: channelState.predictionSettings.outcomes[outcomeIndex].outcomeID,
           points: points,
         })
         // Successfully submitted the prediction. Tell the user.
