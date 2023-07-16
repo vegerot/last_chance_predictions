@@ -1,13 +1,13 @@
 type ChannelID = string;
 
-interface AppState {
+declare interface AppState {
   userSettings: {
     selectedChannelID: ChannelID | null;
   };
   channels: { [channelID in ChannelID]: ChannelState };
 }
 
-interface ChannelState {
+declare interface ChannelState {
   channelID: string;
   channelDisplayName: string;
   channelLoginName: string;
@@ -43,8 +43,8 @@ interface ChannelState {
 type TabID = number;
 /** ex. strager_sr */
 type ChannelLoginName = string;
-type TabChannels = Record<TabID, ChannelLoginName>;
+declare type TabChannels = Record<TabID, ChannelLoginName>;
 
 /** returned from `setTimeout`*/
 type TimerID = number;
-type ChannelIdToTimeout = Record<ChannelLoginName, TimerID>;
+declare type ChannelIdToTimeout = Record<ChannelLoginName, TimerID>;
