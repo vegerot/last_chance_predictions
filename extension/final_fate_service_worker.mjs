@@ -56,6 +56,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       console.assert(typeof channelLoginName === "string");
       tabChannels[tabId] = channelLoginName;
       console.log(tabChannels);
+      sendResponse({ ok: true });
       break;
     }
     default:
