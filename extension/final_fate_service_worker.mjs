@@ -26,10 +26,20 @@ function getDefaultUserSettings() {
   };
 }
 
+function getNonePrediction() {
+  return {
+    status: "none",
+    title: null,
+    deadlineTimeMS: null,
+    outcomes: null,
+  };
+}
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   switch (msg.method) {
     case "popup/getAppState": {
       console.log("service worker: got popup/getAppState request");
+      loadPredictionsFromServerAsync();  // no await
       sendResponse(currentAppState);
       break;
     }
@@ -56,6 +66,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       tabChannels[tabId] = channelLoginName;
       console.log(tabChannels);
       sendResponse({ ok: true });
+      loadPredictionsFromServerAsync();  // no await
       break;
     }
     default:
@@ -127,42 +138,36 @@ const client_state = {
 setTimeout(() => console.log(client_state), 5000);
 setInterval(
   async () => {
-    await Promise.all(
-      getWatchedChannelLoginNames().map(async (channelLoginName) => {
-        let credentials = getCredentialsForChannelLoginName(channelLoginName);
-        if (credentials === null) {
-          console.warn(
-            `service worker: cannot load predictions for channel ${channelLoginName} because credentials are not yet available`,
-          );
-          return null;
-        }
-        let { channelID, prediction } =
-          await getActiveChannelPredictionAndChannelID(
-            credentials,
-            channelLoginName,
-          );
-        if (!Object.hasOwnProperty.call(currentAppState.channels, channelID)) {
-          currentAppState.channels[channelID] = {
-            channelID: channelID,
-            channelLoginName: channelLoginName,
-            channelDisplayName: channelLoginName, // TODO
-            predictionSettings: {
-              status: "none",
-              title: null,
-              deadlineTimeMS: null,
-              outcomes: null,
-            },
-            userSettings: getDefaultUserSettings(),
-            submission: null,
-          };
-        }
-        currentAppState.channels[channelID].predictionSettings = prediction;
-      }),
-    );
-    // TODO(strager): Delete old entries from currentAppState.channels.
+    // TODO(strager): Replace with EventSub/pubsub notifications.
+    await loadPredictionsFromServerAsync();
   },
   1000,
 );
+
+async function loadPredictionsFromServerAsync() {
+  await Promise.all(getWatchedChannelLoginNames().map(async (channelLoginName) => {
+    let credentials = getCredentialsForChannelLoginName(channelLoginName);
+    if (credentials === null) {
+      console.warn(`service worker: cannot load predictions for channel ${channelLoginName} because credentials are not yet available`);
+      return null;
+    }
+    let {channelID, prediction} = await getActiveChannelPredictionAndChannelID(credentials, channelLoginName);
+    if (!Object.hasOwnProperty.call(currentAppState.channels, channelID)) {
+      currentAppState.channels[channelID] = {
+        channelID: channelID,
+        channelLoginName: channelLoginName,
+        channelDisplayName: channelLoginName, // TODO
+        predictionSettings: getNonePrediction(),
+        userSettings: getDefaultUserSettings(),
+        submission: null,
+      };
+    }
+    currentAppState.channels[channelID].predictionSettings = prediction ?? getNonePrediction();
+  }));
+  // TODO(strager): Delete old entries from currentAppState.channels.
+
+  appStateUpdated();
+}
 
 function getWatchedChannelLoginNames() {
   let channelLoginNames = [];
