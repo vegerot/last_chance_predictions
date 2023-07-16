@@ -205,11 +205,11 @@ function currentChannelStateUpdated() {
     }
     dualOutcomesElement.style.setProperty(
       "--outcome-a-color",
-      predictionSettings.outcomes[0].color,
+      getOutcomeCSSColor(predictionSettings.outcomes[0].color),
     );
     dualOutcomesElement.style.setProperty(
       "--outcome-b-color",
-      predictionSettings.outcomes[1].color,
+      getOutcomeCSSColor(predictionSettings.outcomes[1].color),
     );
     initOutcomeUI(outcomeAElement, predictionSettings.outcomes[0]);
     initOutcomeUI(outcomeBElement, predictionSettings.outcomes[1]);
@@ -237,6 +237,16 @@ function currentChannelStateUpdated() {
     `${userSettings.pointLimit}`;
 
   updateUIFromUserInput();
+}
+
+function getOutcomeCSSColor(color) {
+  if (color === 'PINK') {
+    return 'rgb(245, 0, 155)';
+  }
+  if (color === 'BLUE') {
+    return 'rgb(56, 122, 255)';
+  }
+  return color;
 }
 
 // setValueIfDifferent prevents moving the user's text cursor unnecessarily.
