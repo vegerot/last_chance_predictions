@@ -1,5 +1,5 @@
 const browser = chrome;
-import { getActiveChannelPredictions } from "./get-active-predictions.mjs";
+import { getActiveChannelPredictionAndChannelID } from "./get-active-predictions.mjs";
 console.log("final_fate_service_worker.js loaded");
 console.assert(typeof document === "undefined"); // cannot access host document in service worker
 console.assert(typeof browser.webRequest !== undefined); // can access most chrome APIs in service workers
@@ -10,57 +10,6 @@ let currentAppState = {
     selectedChannelID: "1234",
   },
   channels: {
-    "1234": {
-      channelID: "1234",
-      channelLoginName: "strager_sr",
-      channelDisplayName: "strager_SR",
-      predictionSettings: {
-        status: "active",
-        title: "Collect supers by 15:00?",
-        deadlineTimeMS: deadline,
-        outcomes: [
-          { color: "pink", iconURI: "", name: "YES" },
-          { color: "blue", iconURI: "", name: "no" },
-        ],
-      },
-      userSettings: {
-        predictionRatios: [30, 70],
-        pointLimit: 6969,
-        enabled: false,
-        secondsBeforeDeadline: 3,
-      },
-      submission: {
-        points: 42,
-      },
-    },
-
-    "5678": {
-      channelID: "5678",
-      channelLoginName: "emceemc2",
-      channelDisplayName: "emceeMC2",
-      predictionSettings: {
-        status: "none",
-        title: null,
-        deadlineTimeMS: null,
-        outcomes: null,
-      },
-      userSettings: getDefaultUserSettings(),
-      submission: null,
-    },
-
-    "666": {
-      channelID: "666",
-      channelLoginName: "oatsngoats",
-      channelDisplayName: "Oatsngoats",
-      predictionSettings: {
-        status: "none",
-        title: null,
-        deadlineTimeMS: null,
-        outcomes: null,
-      },
-      userSettings: getDefaultUserSettings(),
-      submission: null,
-    },
   },
 };
 
@@ -176,13 +125,56 @@ const client_state = {
   session_id: null,
 };
 setTimeout(() => console.log(client_state), 5000);
-setTimeout(
-  async () =>
-    console.log(await getActiveChannelPredictions(client_state, "strager_sr")),
-  6000,
+setInterval(
+  async () => {
+    await Promise.all(getWatchedChannelLoginNames().map(async (channelLoginName) => {
+      let credentials = getCredentialsForChannelLoginName(channelLoginName);
+      if (credentials === null) {
+        console.warn(`service worker: cannot load predictions for channel ${channelLoginName} because credentials are not yet available`);
+        return null;
+      }
+      let {channelID, prediction} = await getActiveChannelPredictionAndChannelID(credentials, channelLoginName);
+      if (!Object.hasOwnProperty.call(currentAppState.channels, channelID)) {
+        currentAppState.channels[channelID] = {
+          channelID: channelID,
+          channelLoginName: channelLoginName,
+          channelDisplayName: channelLoginName, // TODO
+          predictionSettings: {
+            status: "none",
+            title: null,
+            deadlineTimeMS: null,
+            outcomes: null,
+          },
+          userSettings: getDefaultUserSettings(),
+          submission: null,
+        };
+      }
+      currentAppState.channels[channelID].predictionSettings = prediction;
+    }));
+    // TODO(strager): Delete old entries from currentAppState.channels.
+  },
+  1000,
 );
 
+function getWatchedChannelLoginNames() {
+  return ["strager_sr"];
+}
+
+// Returns null if no credentials are available yet.
+function getCredentialsForChannelLoginName(channelLoginName) {
+  // TODO(strager): Find a tab with the channel open and use its credentials.
+  if (client_state.authorization_header !== null &&
+      client_state.client_id !== null &&
+      client_state.client_integrity !== null &&
+      client_state.device_id !== null &&
+      client_state.session_id !== null) {
+    return client_state;
+  }
+  return null;
+}
+
 function testDifferentPredictionSettingsStates() {
+  testDummyPredictions();
   setTimeout(() => {
     currentAppState.channels["1234"].predictionSettings.status = "locked";
     appStateUpdated();
@@ -192,4 +184,58 @@ function testDifferentPredictionSettingsStates() {
     appStateUpdated();
   }, 10000);
 }
+function testDummyPredictions() {
+  currentAppState.channels["1234"] = {
+    channelID: "1234",
+    channelLoginName: "strager_sr",
+    channelDisplayName: "strager_SR",
+    predictionSettings: {
+      status: "active",
+      title: "Collect supers by 15:00?",
+      deadlineTimeMS: deadline,
+      outcomes: [
+        { color: "pink", iconURI: "", name: "YES" },
+        { color: "blue", iconURI: "", name: "no" },
+      ],
+    },
+    userSettings: {
+      predictionRatios: [30, 70],
+      pointLimit: 6969,
+      enabled: false,
+      secondsBeforeDeadline: 3,
+    },
+    submission: {
+      points: 42,
+    },
+  };
+
+  currentAppState.channels["5678"] = {
+    channelID: "5678",
+    channelLoginName: "emceemc2",
+    channelDisplayName: "emceeMC2",
+    predictionSettings: {
+      status: "none",
+      title: null,
+      deadlineTimeMS: null,
+      outcomes: null,
+    },
+    userSettings: getDefaultUserSettings(),
+    submission: null,
+  };
+
+  currentAppState.channels["666"] = {
+    channelID: "666",
+    channelLoginName: "oatsngoats",
+    channelDisplayName: "Oatsngoats",
+    predictionSettings: {
+      status: "none",
+      title: null,
+      deadlineTimeMS: null,
+      outcomes: null,
+    },
+    userSettings: getDefaultUserSettings(),
+    submission: null,
+  };
+}
 //testDifferentPredictionSettingsStates();
+//testDummyPredictions();

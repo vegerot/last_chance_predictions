@@ -1,4 +1,4 @@
-export async function getActiveChannelPredictions(
+export async function getActiveChannelPredictionAndChannelID(
   client_credentials,
   channel_name,
 ) {
@@ -67,7 +67,10 @@ export async function getActiveChannelPredictions(
     "method": "POST",
   }).then((res) => res.json());
 
-  return resultToPredictions(result);
+  return {
+    prediction: resultToPredictionSettings(result),
+    channelID: result[0].data.community.channel.id,
+  };
 }
 
 // predictionSettings: {
@@ -79,7 +82,7 @@ export async function getActiveChannelPredictions(
 //   // non-null if .status === 'active'
 //   deadlineTimeMS: number | null,
 // }
-function resultToPredictions(result) {
+function resultToPredictionSettings(result) {
   let { activePredictionEvents } = result[0].data.community.channel;
   console.log({ activePredictionEvents });
   console.assert(activePredictionEvents.length <= 1);
