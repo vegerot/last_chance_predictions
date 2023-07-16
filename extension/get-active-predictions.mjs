@@ -87,6 +87,7 @@ function resultToPredictionSettings(result) {
       status: status.toLowerCase(),
       predictionID: id,
       outcomes: outcomes.map((outcome) => ({
+        totalPoints: outcome.totalPoints,
         outcomeID: outcome.id,
         color: outcome.color,
         iconURI: outcome.badge.image4x,
