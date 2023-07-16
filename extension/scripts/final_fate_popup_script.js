@@ -1,6 +1,5 @@
 const browser = chrome;
 // TODO:
-// * sync slider with <output> elements
 // * put some things in a class
 
 function updatePredictionSliderCSS(element) {
