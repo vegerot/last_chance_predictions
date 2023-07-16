@@ -14,15 +14,16 @@ export async function predictAsync({
           "outcomeID": outcomeID,
           "points": points,
           "transactionID": transactionID,
-        }
+        },
       },
       "extensions": {
         "persistedQuery": {
           "version": 1,
-          "sha256Hash": "b44682ecc88358817009f20e69d75081b1e58825bb40aa53d5dbadcc17c881d8"
-        }
-      }
-    }
+          "sha256Hash":
+            "b44682ecc88358817009f20e69d75081b1e58825bb40aa53d5dbadcc17c881d8",
+        },
+      },
+    },
   ];
 
   let result = await fetch("https://gql.twitch.tv/gql", {
@@ -39,11 +40,10 @@ export async function predictAsync({
     "referrer": "https://www.twitch.tv/",
     "body": JSON.stringify(body),
     "method": "POST",
-  }).then((res) => res.json())
+  }).then((res) => res.json());
   if (result[0].errors?.length > 0) {
     throw new Error(result[0].errors[0].message);
   }
-
 }
 
 /*

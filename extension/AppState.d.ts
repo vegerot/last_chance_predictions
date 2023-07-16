@@ -21,7 +21,7 @@ interface ChannelState {
       outcomeID: string;
       color: string;
       iconURI: string;
-      name: string
+      name: string;
     }[] | null;
     // non-null if .status !== 'none':
     title: string | null;

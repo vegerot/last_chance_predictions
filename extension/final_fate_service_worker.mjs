@@ -209,10 +209,8 @@ function handleTimerForPrediction(channelLoginName, channelID) {
     clearTimeout(channelIdToTimeout[channelLoginName]);
   }
   let channelState = currentAppState.channels[channelID];
-  let alreadySubmittedPrediction =
-    channelState.submission !== null;
-  let isPredictionActive =
-    channelState.predictionSettings.status === "active";
+  let alreadySubmittedPrediction = channelState.submission !== null;
+  let isPredictionActive = channelState.predictionSettings.status === "active";
   if (isPredictionActive && !alreadySubmittedPrediction) {
     let timeShouldSubmitPrediction =
       channelState.predictionSettings.deadlineTimeMS -
@@ -222,18 +220,23 @@ function handleTimerForPrediction(channelLoginName, channelID) {
       async () => {
         let credentials = getCredentialsForChannelLoginName(channelLoginName);
         if (credentials === null) {
-          console.warn(`service worker: not prediction because no credentials found for ${channelLoginName}`);
+          console.warn(
+            `service worker: not prediction because no credentials found for ${channelLoginName}`,
+          );
           return;
         }
         let outcomeIndex = 0; // TODO
         let points = 5; // TODO
-        console.log(`service worker: making ${points} point prediction for outcome index ${outcomeIndex}`);
+        console.log(
+          `service worker: making ${points} point prediction for outcome index ${outcomeIndex}`,
+        );
         await predictAsync({
           clientCredentials: credentials,
           predictionID: channelState.predictionSettings.predictionID,
-          outcomeID: channelState.predictionSettings.outcomes[outcomeIndex].outcomeID,
+          outcomeID:
+            channelState.predictionSettings.outcomes[outcomeIndex].outcomeID,
           points: points,
-        })
+        });
         // Successfully submitted the prediction. Tell the user.
         channelState.submission = {
           points: points,
