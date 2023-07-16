@@ -204,6 +204,7 @@ function handlePredictionsUpdated(channelLoginName, channelID, prediction) {
   handleTimerForPrediction(channelLoginName, channelID);
 }
 
+import { calculateBet } from "./betting.mjs";
 function handleTimerForPrediction(channelLoginName, channelID) {
   if (channelIdToTimeout[channelLoginName]) {
     clearTimeout(channelIdToTimeout[channelLoginName]);
@@ -225,21 +226,25 @@ function handleTimerForPrediction(channelLoginName, channelID) {
           );
           return;
         }
-        let outcomeIndex = 0; // TODO
-        let points = 5; // TODO
+        const userOdds = {
+          odds: channelState.userSettings.predictionRatios,
+          maxBet: channelState.userSettings.pointLimit,
+        };
+        const chatOdds = { pointsPerSide: [42, 69] }; // TODO
+        const [outcomeIndex, pointsToBet] = calculateBet(userOdds, chatOdds);
         console.log(
-          `service worker: making ${points} point prediction for outcome index ${outcomeIndex}`,
+          `service worker: making ${pointsToBet} point prediction for outcome index ${outcomeIndex}`,
         );
         await predictAsync({
           clientCredentials: credentials,
           predictionID: channelState.predictionSettings.predictionID,
           outcomeID:
             channelState.predictionSettings.outcomes[outcomeIndex].outcomeID,
-          points: points,
+          points: pointsToBet,
         });
         // Successfully submitted the prediction. Tell the user.
         channelState.submission = {
-          points: points,
+          points: pointsToBet,
           outcomeIndex: outcomeIndex,
         };
         appStateUpdated();
