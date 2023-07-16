@@ -5,6 +5,9 @@ Twitch channel points. Pick your odds and a point limit, and Last Chance
 Predictions will automatically calculate which side to bet and how many points
 to bet and submit your prediction just in time!
 
+![](./docs/closed-prediction.png)
+![](./docs/open-prediction.png)
+
 Last Chance Predictions is written in JavaScript (with some accidental
 TypeScript).
 
@@ -29,6 +32,7 @@ Google Chrome, Brave, and Microsoft Edge.
 
 1. Open the extensions panel in your browser's toolbar and **pin** the Last
    Chance Predictions extension.
+   ![](./docs/pin-extension.png)
 2. Open a Twitch stream.
 3. Wait for a prediction to become active in the stream you're watching.
 4. Click the Last Chance Predictions extension icon in your toolbar.
