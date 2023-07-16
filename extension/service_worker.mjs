@@ -218,7 +218,13 @@ function handleTimerForPrediction(channelLoginName, channelID) {
       channelState.userSettings.secondsBeforeDeadline * 1000;
     let msUntilShouldSubmitPrediction = timeShouldSubmitPrediction - Date.now();
     channelIdToTimeout[channelLoginName] = setTimeout(
-      async () => {
+      () => makePrediction(channelLoginName, channelState),
+      msUntilShouldSubmitPrediction,
+    );
+  }
+}
+
+async function makePrediction(channelLoginName, channelState) {
         let credentials = getCredentialsForChannelLoginName(channelLoginName);
         if (credentials === null) {
           console.warn(
@@ -226,12 +232,13 @@ function handleTimerForPrediction(channelLoginName, channelID) {
           );
           return;
         }
-        const userOdds = {
-          odds: channelState.userSettings.predictionRatios,
-          maxBet: channelState.userSettings.pointLimit,
-        };
-        const chatOdds = { pointsPerSide: [42, 69] }; // TODO
-        const {side: outcomeIndex, points: pointsToBet} = calculateBet(userOdds, chatOdds);
+        const optimalPrediction  = calculateHowManyPointsToBet(channelState.userSettings, channelState.predictionSettings)
+        if (optimalPrediction === null) {
+          console.warn("service worker: The only winning move is not to play...");
+          // TODO: update channelState.submission
+          return
+        }
+        let {outcomeIndex, pointsToBet} = optimalPrediction
         console.log(
           `service worker: making ${pointsToBet} point prediction for outcome index ${outcomeIndex}`,
         );
@@ -248,10 +255,18 @@ function handleTimerForPrediction(channelLoginName, channelID) {
           outcomeIndex: outcomeIndex,
         };
         appStateUpdated();
-      },
-      msUntilShouldSubmitPrediction,
-    );
-  }
+}
+
+function calculateHowManyPointsToBet(user, predictions) {
+  const userOdds = {
+    odds: user.predictionRatios,
+    maxBet: user.pointLimit,
+  };
+  const chatOdds = {pointsPerSide: predictions.outcomes.map((outcome) => outcome.totalPoints)};
+  const optimalBet = calculateBet(userOdds, chatOdds);
+  if (optimalBet === null) return null
+  const {side: outcomeIndex, points: pointsToBet} = optimalBet
+  return {outcomeIndex, pointsToBet}
 }
 
 /** @type {ChannelIdToTimeout} */
