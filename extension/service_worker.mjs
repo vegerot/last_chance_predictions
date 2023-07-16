@@ -231,7 +231,7 @@ function handleTimerForPrediction(channelLoginName, channelID) {
           maxBet: channelState.userSettings.pointLimit,
         };
         const chatOdds = { pointsPerSide: [42, 69] }; // TODO
-        const [outcomeIndex, pointsToBet] = calculateBet(userOdds, chatOdds);
+        const {side: outcomeIndex, points: pointsToBet} = calculateBet(userOdds, chatOdds);
         console.log(
           `service worker: making ${pointsToBet} point prediction for outcome index ${outcomeIndex}`,
         );
