@@ -4,7 +4,7 @@ interface AppState {
   userSettings: {
     selectedChannelID: ChannelID | null;
   };
-  channels: {[channelID in ChannelID]: ChannelState};
+  channels: { [channelID in ChannelID]: ChannelState };
 }
 
 interface ChannelState {

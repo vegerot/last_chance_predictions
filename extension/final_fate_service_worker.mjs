@@ -87,7 +87,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
     case "popup/userStateChanged": {
       console.log("service worker: got popup/userStateChanged notification");
-      if (!Object.hasOwnProperty.call(currentAppState.channels, msg.channelID)) {
+      if (
+        !Object.hasOwnProperty.call(currentAppState.channels, msg.channelID)
+      ) {
         console.error(`service worker: unknown channel ID ${msg.channelID}`);
         return;
       }

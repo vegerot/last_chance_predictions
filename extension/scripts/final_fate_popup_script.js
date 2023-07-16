@@ -13,7 +13,7 @@ let currentAppState = {
   channels: {},
 };
 let uiDisplayedChannelID = null;
-window.__FinalFateAppState = currentAppState;  // For debugging.
+window.__FinalFateAppState = currentAppState; // For debugging.
 
 function initUI() {
   stopPredictionTimer();
@@ -47,7 +47,8 @@ function userSettingsUpdated() {
       '[name="prediction"]',
     );
 
-    let selectedChannel = currentAppState.channels[currentAppState.userSettings.selectedChannelID];
+    let selectedChannel =
+      currentAppState.channels[currentAppState.userSettings.selectedChannelID];
     selectedChannel.userSettings = {
       predictionRatios: [
         predictionElement.value,
@@ -89,7 +90,8 @@ function updateUIFromUserInput() {
 function sendUserSettingsToServiceWorker() {
   if (currentAppState.userSettings.selectedChannelID !== null) {
     console.log("popup: sending updated user settings");
-    let selectedChannel = currentAppState.channels[currentAppState.userSettings.selectedChannelID];
+    let selectedChannel =
+      currentAppState.channels[currentAppState.userSettings.selectedChannelID];
     chrome.runtime.sendMessage({
       method: "popup/userStateChanged",
       channelID: currentAppState.userSettings.selectedChannelID,
@@ -142,9 +144,14 @@ function channelListUpdated() {
     } else {
       currentAppState.userSettings.selectedChannelID = channelIDs[0];
     }
-    console.log(`channelListUpdated: forcefully changed selected channel ID to ${currentAppState.userSettings.selectedChannelID}`);
+    console.log(
+      `channelListUpdated: forcefully changed selected channel ID to ${currentAppState.userSettings.selectedChannelID}`,
+    );
   }
-  setValueIfDifferent(channelsElement, currentAppState.userSettings.selectedChannelID);
+  setValueIfDifferent(
+    channelsElement,
+    currentAppState.userSettings.selectedChannelID,
+  );
 }
 
 function currentChannelStateUpdated() {
@@ -153,7 +160,8 @@ function currentChannelStateUpdated() {
     // TODO
     return;
   }
-  let selectedChannel = currentAppState.channels[currentAppState.userSettings.selectedChannelID];
+  let selectedChannel =
+    currentAppState.channels[currentAppState.userSettings.selectedChannelID];
   let { predictionSettings, userSettings, submission } = selectedChannel;
 
   console.assert(
