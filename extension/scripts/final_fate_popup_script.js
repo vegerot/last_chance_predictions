@@ -51,7 +51,7 @@ function userSettingsUpdated() {
       currentAppState.channels[currentAppState.userSettings.selectedChannelID];
     selectedChannel.userSettings = {
       predictionRatios: [
-        predictionElement.value,
+        Number(predictionElement.value),
         100 - predictionElement.value,
       ],
       pointLimit: rootElement.querySelector('[name="point-limit"]').value,
