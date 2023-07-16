@@ -135,7 +135,6 @@ const client_state = {
   device_id: null,
   session_id: null,
 };
-setTimeout(() => console.log(client_state), 5000);
 setInterval(
   async () => {
     // TODO(strager): Replace with EventSub/pubsub notifications.
