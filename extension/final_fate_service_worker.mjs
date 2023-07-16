@@ -9,8 +9,8 @@ let currentAppState = {
   userSettings: {
     selectedChannelID: "1234",
   },
-  channels: [
-    {
+  channels: {
+    "1234": {
       channelID: "1234",
       channelLoginName: "strager_sr",
       channelDisplayName: "strager_SR",
@@ -34,7 +34,7 @@ let currentAppState = {
       },
     },
 
-    {
+    "5678": {
       channelID: "5678",
       channelLoginName: "emceemc2",
       channelDisplayName: "emceeMC2",
@@ -48,7 +48,7 @@ let currentAppState = {
       submission: null,
     },
 
-    {
+    "666": {
       channelID: "666",
       channelLoginName: "oatsngoats",
       channelDisplayName: "Oatsngoats",
@@ -61,7 +61,7 @@ let currentAppState = {
       userSettings: getDefaultUserSettings(),
       submission: null,
     },
-  ],
+  },
 };
 
 function getDefaultUserSettings() {
@@ -82,13 +82,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
     case "popup/userStateChanged": {
       console.log("service worker: got popup/userStateChanged notification");
-      let channelState = currentAppState.channels.find((c) =>
-        c.channelID === msg.channelID
-      );
-      if (!channelState) {
+      if (!Object.hasOwnProperty.call(currentAppState.channels, msg.channelID)) {
         console.error(`service worker: unknown channel ID ${msg.channelID}`);
         return;
       }
+      let channelState = currentAppState.channels[msg.channelID];
       channelState.userSettings = msg.userSettings;
       //appStateUpdated();  // Don't bother. UI already knows.
       break;
@@ -168,11 +166,11 @@ setTimeout(
 
 function testDifferentPredictionSettingsStates() {
   setTimeout(() => {
-    currentAppState.channels[0].predictionSettings.status = "locked";
+    currentAppState.channels["1234"].predictionSettings.status = "locked";
     appStateUpdated();
   }, 5000);
   setTimeout(() => {
-    currentAppState.channels[0].predictionSettings.status = "none";
+    currentAppState.channels["1234"].predictionSettings.status = "none";
     appStateUpdated();
   }, 10000);
 }

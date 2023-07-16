@@ -1,8 +1,10 @@
+type ChannelID = string;
+
 interface AppState {
   userSettings: {
-    selectedChannelID: string | null;
+    selectedChannelID: ChannelID | null;
   };
-  channels: ChannelState[];
+  channels: {[channelID in ChannelID]: ChannelState};
 }
 
 interface ChannelState {

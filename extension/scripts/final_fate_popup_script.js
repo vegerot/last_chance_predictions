@@ -10,9 +10,10 @@ let currentAppState = {
   userSettings: {
     selectedChannelID: null,
   },
-  channels: [],
+  channels: {},
 };
 let uiDisplayedChannelID = null;
+window.__FinalFateAppState = currentAppState;  // For debugging.
 
 function initUI() {
   stopPredictionTimer();
@@ -46,9 +47,7 @@ function userSettingsUpdated() {
       '[name="prediction"]',
     );
 
-    let selectedChannel = currentAppState.channels.find((c) =>
-      c.channelID === currentAppState.userSettings.selectedChannelID
-    );
+    let selectedChannel = currentAppState.channels[currentAppState.userSettings.selectedChannelID];
     selectedChannel.userSettings = {
       predictionRatios: [
         predictionElement.value,
@@ -88,15 +87,15 @@ function updateUIFromUserInput() {
 }
 
 function sendUserSettingsToServiceWorker() {
-  console.log("popup: sending updated user settings");
-  let selectedChannel = currentAppState.channels.find((c) =>
-    c.channelID === currentAppState.userSettings.selectedChannelID
-  );
-  chrome.runtime.sendMessage({
-    method: "popup/userStateChanged",
-    channelID: currentAppState.userSettings.selectedChannelID,
-    userSettings: selectedChannel?.userSettings,
-  });
+  if (currentAppState.userSettings.selectedChannelID !== null) {
+    console.log("popup: sending updated user settings");
+    let selectedChannel = currentAppState.channels[currentAppState.userSettings.selectedChannelID];
+    chrome.runtime.sendMessage({
+      method: "popup/userStateChanged",
+      channelID: currentAppState.userSettings.selectedChannelID,
+      userSettings: selectedChannel?.userSettings,
+    });
+  }
 }
 
 function appStateUpdated() {
@@ -109,7 +108,7 @@ function appStateUpdated() {
 
 function channelListUpdated() {
   let channels = currentAppState.channels;
-  let channelIDs = channels.map((c) => c.channelID);
+  let channelIDs = Object.getOwnPropertyNames(channels);
 
   let channelsElement = document.querySelector(
     '#prediction [name="current-channel"]',
@@ -127,14 +126,14 @@ function channelListUpdated() {
     optionElement.remove();
   }
 
-  let channelsToAdd = channels.filter((c) =>
-    !channelIDsInUI.includes(c.channelID)
-  );
-  for (let channel of channelsToAdd) {
-    let optionElement = document.createElement("option");
-    optionElement.value = channel.channelID;
-    optionElement.textContent = channel.channelDisplayName;
-    channelsElement.appendChild(optionElement);
+  for (let channelID of channelIDs) {
+    if (!channelIDsInUI.includes(channelID)) {
+      let channel = channels[channelID];
+      let optionElement = document.createElement("option");
+      optionElement.value = channel.channelID;
+      optionElement.textContent = channel.channelDisplayName;
+      channelsElement.appendChild(optionElement);
+    }
   }
 
   if (!channelIDs.includes(currentAppState.userSettings.selectedChannelID)) {
@@ -143,8 +142,9 @@ function channelListUpdated() {
     } else {
       currentAppState.userSettings.selectedChannelID = channelIDs[0];
     }
-    channelsElement.value = currentAppState.userSettings.selectedChannelID;
+    console.log(`channelListUpdated: forcefully changed selected channel ID to ${currentAppState.userSettings.selectedChannelID}`);
   }
+  setValueIfDifferent(channelsElement, currentAppState.userSettings.selectedChannelID);
 }
 
 function currentChannelStateUpdated() {
@@ -153,9 +153,7 @@ function currentChannelStateUpdated() {
     // TODO
     return;
   }
-  let selectedChannel = currentAppState.channels.find((c) =>
-    c.channelID === currentAppState.userSettings.selectedChannelID
-  );
+  let selectedChannel = currentAppState.channels[currentAppState.userSettings.selectedChannelID];
   let { predictionSettings, userSettings, submission } = selectedChannel;
 
   console.assert(
